@@ -1,1 +1,2 @@
-# neuralgym
+NeuralGym: Deep Learning Toolkit
+=================================
