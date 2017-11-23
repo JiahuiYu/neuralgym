@@ -4,23 +4,31 @@
    contain the root `toctree` directive.
 
 Welcome to NeuralGym!
-=====================================
+=====================
 
 .. toctree::
    :maxdepth: 3
 
 
-neuralgym module
-================
+neuralgym
+=========
 
 .. automodule:: neuralgym
     :members:
     :no-undoc-members:
 
-neuralgym.utils module
-======================
+neuralgym.utils
+===============
 
 .. automodule:: neuralgym.utils
+    :members:
+    :no-undoc-members:
+    :show-inheritance:
+
+neuralgym.callbacks
+===================
+
+.. automodule:: neuralgym.callbacks
     :members:
     :no-undoc-members:
     :show-inheritance:
