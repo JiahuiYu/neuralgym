@@ -17,18 +17,26 @@ neuralgym
     :members:
     :no-undoc-members:
 
-neuralgym.utils
-===============
-
-.. automodule:: neuralgym.utils
-    :members:
-    :no-undoc-members:
-    :show-inheritance:
-
 neuralgym.callbacks
 ===================
 
 .. automodule:: neuralgym.callbacks
+    :members:
+    :no-undoc-members:
+    :show-inheritance:
+
+neuralgym.ops
+=============
+
+.. automodule:: neuralgym.ops
+    :members:
+    :no-undoc-members:
+    :show-inheritance:
+
+neuralgym.utils
+===============
+
+.. automodule:: neuralgym.utils
     :members:
     :no-undoc-members:
     :show-inheritance:

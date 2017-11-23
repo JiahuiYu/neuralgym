@@ -7,6 +7,7 @@ from logging.config import dictConfig
 from termcolor import colored
 
 from . import callbacks
+from . import ops
 from .utils.gpus import set_gpus, get_gpus
 from .utils.config import Config
 

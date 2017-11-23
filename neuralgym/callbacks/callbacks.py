@@ -142,7 +142,7 @@ class ScheduledCallback(Callback):
         self.schedule = schedule
 
     @abstractmethod
-    def run(self, sess, step): # pylint: disable=arguments-differ
+    def run(self, sess, step):
         callback_log('Trigger ScheduledCallback at Step-%d' % step)
         func = self.schedule[step]
         if func:
