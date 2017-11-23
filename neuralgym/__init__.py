@@ -8,6 +8,7 @@ from termcolor import colored
 
 from . import callbacks
 from . import ops
+from . import train
 from .utils.gpus import set_gpus, get_gpus
 from .utils.config import Config
 

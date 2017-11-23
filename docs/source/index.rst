@@ -33,6 +33,14 @@ neuralgym.ops
     :no-undoc-members:
     :show-inheritance:
 
+neuralgym.train
+===============
+
+.. automodule:: neuralgym.train
+    :members:
+    :no-undoc-members:
+    :show-inheritance:
+
 neuralgym.utils
 ===============
 
