@@ -7,44 +7,19 @@ Welcome to NeuralGym!
 =====================
 
 .. toctree::
+   :glob:
    :maxdepth: 3
+   :caption: Tutorials
+
+   tutorials/*
 
 
-neuralgym
-=========
+.. toctree::
+   :maxdepth: 3
+   :caption: Package Reference
 
-.. automodule:: neuralgym
-    :members:
-    :no-undoc-members:
-
-neuralgym.callbacks
-===================
-
-.. automodule:: neuralgym.callbacks
-    :members:
-    :no-undoc-members:
-    :show-inheritance:
-
-neuralgym.ops
-=============
-
-.. automodule:: neuralgym.ops
-    :members:
-    :no-undoc-members:
-    :show-inheritance:
-
-neuralgym.train
-===============
-
-.. automodule:: neuralgym.train
-    :members:
-    :no-undoc-members:
-    :show-inheritance:
-
-neuralgym.utils
-===============
-
-.. automodule:: neuralgym.utils
-    :members:
-    :no-undoc-members:
-    :show-inheritance:
+   neuralgym
+   callbacks
+   ops
+   train
+   utils

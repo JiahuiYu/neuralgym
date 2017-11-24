@@ -13,7 +13,7 @@ from .utils.gpus import set_gpus, get_gpus
 from .utils.config import Config
 
 
-
+__version__ = '0.0.1'
 __all__ = ['date_uid', 'get_gpus', 'set_gpus', 'Config']
 
 

@@ -1,0 +1,4 @@
+neuralgym
+=========
+
+.. automodule:: neuralgym
