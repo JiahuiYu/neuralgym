@@ -23,3 +23,4 @@ Welcome to NeuralGym!
    ops
    train
    utils
+   data
