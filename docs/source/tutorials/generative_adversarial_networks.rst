@@ -1,3 +1,3 @@
-Generative Adversarial Networks Tutorial
-========================================
+Generative Adversarial Networks
+===============================
 

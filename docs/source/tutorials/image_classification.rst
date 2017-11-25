@@ -1,3 +1,3 @@
-Image Classification Tutorials
-==============================
+Image Classification
+====================
 

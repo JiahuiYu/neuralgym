@@ -1,3 +1,3 @@
-Reinforcement Learning Tutorial
-===============================
+Reinforcement Learning
+======================
 
