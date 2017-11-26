@@ -6,12 +6,11 @@ import numpy as np
 import tensorflow as tf
 
 from ..utils.logger import ProgressBar
-from ..callbacks.callbacks import CallbackLoc
-from ..callbacks.callbacks import PeriodicCallback, OnceCallback
-from ..callbacks.callbacks import ScheduledCallback
+from ..callbacks import CallbackLoc
+from ..callbacks import PeriodicCallback, OnceCallback, ScheduledCallback
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class Trainer(object):
@@ -58,7 +57,7 @@ class Trainer(object):
         # contexts
         self.context['feed_dict'] = context.pop('feed_dict', {})
         self.context['max_iters'] = int(context.pop('max_iters', 9999999))
-        self.context['log_dir'] = context.pop('log_dir', '/tmp/tensorgym/')
+        self.context['log_dir'] = context.pop('log_dir', '/tmp/neuralgym/')
         self.context['sess_config'] = context.pop(
             'sess_config', tf.ConfigProto())
         self.context['sess_config'].gpu_options.allow_growth = context.pop(

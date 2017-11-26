@@ -1,7 +1,7 @@
 """model_saver"""
 import os
 
-from .callbacks import PeriodicCallback, CallbackLoc
+from . import PeriodicCallback, CallbackLoc
 from ..utils.logger import callback_log
 
 

@@ -2,7 +2,7 @@
 from enum import Enum
 from abc import abstractmethod
 
-from tensorgym.utils.logger import callback_log
+from ..utils.logger import callback_log
 
 
 class CallbackLoc(Enum):

@@ -8,11 +8,11 @@ import logging
 import numpy as np
 import tensorflow as tf
 
-from .callbacks import CallbackLoc, OnceCallback
+from . import CallbackLoc, OnceCallback
 from ..utils.logger import callback_log
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class NPZModelLoader(OnceCallback):

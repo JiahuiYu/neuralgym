@@ -4,7 +4,7 @@ import logging
 
 import tensorflow as tf
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class Dataset(object):

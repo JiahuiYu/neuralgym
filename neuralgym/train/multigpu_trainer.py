@@ -1,17 +1,14 @@
 """Class for multi-GPU trainer."""
-import time
 import logging
 import threading
 
-import numpy as np
 import tensorflow as tf
 
-from tensorgym.utils.logger import ProgressBar
-from tensorgym.callbacks.callbacks import *
-from tensorgym.train.trainer import Trainer
+from ..utils.logger import ProgressBar
+from .trainer import Trainer
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class MultiGPUTrainer(Trainer):

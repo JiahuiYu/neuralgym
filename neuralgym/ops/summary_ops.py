@@ -10,7 +10,7 @@ __all__ = ['scalar_summary', 'filters_summary', 'images_summary',
            'gradients_summary']
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 def collection_to_dict(collection):

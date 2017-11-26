@@ -3,22 +3,41 @@ import logging
 import shutil
 import sys
 import time
-from termcolor import colored
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
-def colored_log(prompt, texts, color='green', attrs=None):
+color2num = dict(
+    gray=30,
+    red=31,
+    green=32,
+    yellow=33,
+    blue=34,
+    magenta=35,
+    cyan=36,
+    white=37,
+    crimson=38,
+)
+
+
+def colorize(string, color, bold=False, highlight=False):
+    attr = []
+    num = color2num[color]
+    if highlight: num += 10
+    attr.append(str(num))
+    if bold: attr.append('1')
+    return '\x1b[%sm%s\x1b[0m' % (';'.join(attr), string)
+
+
+def colored_log(prompt, texts, color='green', bold=True, highlight=False):
     """Show colored logs.
     """
     assert isinstance(prompt, str)
     assert isinstance(texts, str)
     assert isinstance(color, str)
-    if attrs is None:
-        attrs = ['bold']
-    colored_prompt = colored(prompt, color, attrs=attrs)
-    clean_line = '\x1b[2K\r'
+    colored_prompt = colorize(prompt, color, bold=bold, highlight=highlight)
+    clean_line = ''
     sys.stdout.write(clean_line)
     logger.info(colored_prompt + texts)
 

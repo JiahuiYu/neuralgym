@@ -4,19 +4,7 @@ import logging
 import os
 
 from logging.config import dictConfig
-from termcolor import colored
-
-from . import callbacks
-from . import ops
-from . import train
-from . import models
-from . import server
-from .utils.gpus import set_gpus, get_gpus
-from .utils.config import Config
-
-
-__version__ = '0.0.1'
-__all__ = ['date_uid', 'get_gpus', 'set_gpus', 'Config']
+from .utils.logger import colorize
 
 
 def date_uid():
@@ -36,12 +24,12 @@ LOGGING_CONFIG = dict(
     version=1,
     formatters={
         'f': {
-            'format': colored('\x1b[2K\r[%(asctime)s @%(filename)s:%(lineno)d'
-                              ']green') + ' %(message)s',
+            'format': colorize('[%(asctime)s @%(filename)s:%(lineno)d]',
+                               'green') + ' %(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S'},
         'ff': {
             'format':
-            '[\x1b[2K\r%(levelname)-8s %(asctime)s @%(filename)s:%(lineno)d] '
+            '[%(levelname)-5s %(asctime)s @%(filename)s:%(lineno)d] '
             '%(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S'}
         },
@@ -61,7 +49,33 @@ LOGGING_CONFIG = dict(
         },
 )
 
+
 if not os.path.exists(LOGGER_DIR):
     os.makedirs(LOGGER_DIR)
 
+
 dictConfig(LOGGING_CONFIG)
+
+
+def unset_logger():
+    """Unset logger of neuralgym.
+    """
+    raise NotImplementedError('Unset logger function is not implemented yet.')
+
+
+from . import callbacks
+from . import ops
+from . import train
+from . import models
+from . import data
+from . import server
+
+from .utils.gpus import set_gpus, get_gpus
+from .utils.config import Config
+
+
+__version__ = '0.0.1'
+__all__ = ['date_uid', 'get_gpus', 'set_gpus', 'unset_logger', 'Config']
+
+logger = logging.getLogger()
+logger.info('Set root logger. Unset logger with neuralgym.unset_logger().')

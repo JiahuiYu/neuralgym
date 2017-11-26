@@ -1,7 +1,7 @@
 """HyperParamScheduler"""
 import tensorflow as tf
 
-from .callbacks import ScheduledCallback, CallbackLoc
+from . import ScheduledCallback, CallbackLoc
 from ..utils.logger import callback_log
 from ..ops.summary_ops import scalar_summary
 

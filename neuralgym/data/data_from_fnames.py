@@ -11,7 +11,7 @@ from .dataset import Dataset
 from ..ops.image_ops import np_random_crop
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 READER_LOCK = threading.Lock()
 
 
@@ -39,7 +39,7 @@ class DataFromFNames(Dataset):
                  enqueue_size=32, queue_size=256, nthreads=16,
                  return_fnames=False, filetype='image'):
         """ Initialize dataset. """
-        self.fnamelists_ = fnamelists
+        self.fnamelists_ = self.process_fnamelists(fnamelists)
         self.file_length = len(self.fnamelists_)
         self.random = random
         self.random_crop = random_crop
@@ -66,7 +66,7 @@ class DataFromFNames(Dataset):
         self.fn_preprocess = fn_preprocess
         if not random:
             self.index = 0
-        super().__init__('data_from_fnamelist', 'data_from_fnamelist')
+        super().__init__()
         self.create_queue()
 
     def process_fnamelists(self, fnamelist):
@@ -81,7 +81,7 @@ class DataFromFNames(Dataset):
         else:
             raise ValueError('Type error for fnamelist.')
 
-    def data_pipeline(self, batch_size, subset=None):
+    def data_pipeline(self, batch_size):
         """Return batch data queue"""
         return self._queue.dequeue_many(batch_size)
 

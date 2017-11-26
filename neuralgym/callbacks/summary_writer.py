@@ -1,5 +1,5 @@
 """summary writer"""
-from .callbacks import PeriodicCallback, CallbackLoc
+from . import PeriodicCallback, CallbackLoc
 
 
 class SummaryWriter(PeriodicCallback):

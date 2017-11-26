@@ -4,7 +4,7 @@ import re
 import logging
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 def set_gpus(gpus):
@@ -16,9 +16,8 @@ def set_gpus(gpus):
     """
     if not isinstance(gpus, list):
         gpus = [gpus]
-    logger.info('GPU(s) {} selected.'.format(gpus))
     os.environ['CUDA_VISIBLE_DEVICES'] = ','.join(str(e) for e in gpus)
-    logger.info('Setup env var: CUDA_VISIBLE_DEVICES.')
+    logger.info('Set env: CUDA_VISIBLE_DEVICES={}.'.format(gpus))
 
 
 def get_gpus(num=1, dedicated=True, verbose=True):

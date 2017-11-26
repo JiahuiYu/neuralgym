@@ -4,11 +4,11 @@ import logging
 
 import tensorflow as tf
 
-from .callbacks import PeriodicCallback, CallbackLoc
+from . import PeriodicCallback, CallbackLoc
 from ..utils.logger import callback_log
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class ModelSync(PeriodicCallback):
