@@ -3,21 +3,14 @@ import logging
 
 import tensorflow as tf
 from tensorflow.python.framework import ops as _ops
+from ..utils.tf_utils import get_sess
+
+
+__all__ = ['scalar_summary', 'filters_summary', 'images_summary',
+           'gradients_summary']
 
 
 logger = logging.getLogger(__name__)
-
-
-def get_sess(sess=None):
-    """Get default session if sess is None.
-
-    :param sess: valid sess or None
-    :return: valid sess
-    """
-    if sess is None:
-        sess = tf.get_default_session()
-    assert sess, 'sess be None.'
-    return sess
 
 
 def collection_to_dict(collection):
