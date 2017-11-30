@@ -53,25 +53,31 @@ class DictAsMember(dict):
 class Config(dict):
     """Config with yaml file.
 
-    This class is to config model hyper-parameters, global constants, etc.
-    with yaml file.
+    This class is used to config model hyper-parameters, global constants, and
+    other settings with yaml file. All settings in yaml file will be
+    automatically logged into file.
 
-    Example yaml file ``model.yml``::
+    Args:
+        filename(str): File name.
 
-        NAME: 'neuralgym'
-        ALPHA: 1.0
-        DATASET: '/mnt/data/imagenet'
+    Examples:
 
-    Example usage:
+        yaml file ``model.yml``::
 
-    >>> from neuralgym import Config
-    >>> config = Config('model.yml')
-    >>> print(config.NAME)
-        neuralgym
-    >>> print(config.ALPHA)
-        1.0
-    >>> print(config.DATASET)
-        /mnt/data/imagenet
+            NAME: 'neuralgym'
+            ALPHA: 1.0
+            DATASET: '/mnt/data/imagenet'
+
+        Usage in .py:
+
+        >>> from neuralgym import Config
+        >>> config = Config('model.yml')
+        >>> print(config.NAME)
+            neuralgym
+        >>> print(config.ALPHA)
+            1.0
+        >>> print(config.DATASET)
+            /mnt/data/imagenet
 
     """
 

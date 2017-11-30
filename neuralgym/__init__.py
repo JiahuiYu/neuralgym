@@ -1,4 +1,3 @@
-"""NeuralGym"""
 import datetime
 import logging
 import os
@@ -7,10 +6,16 @@ from logging.config import dictConfig
 from .utils.logger import colorize
 
 
-def date_uid():
-    """generate a unique id based on date
+__version__ = '0.0.1'
+__all__ = ['Config', 'get_gpus', 'set_gpus', 'date_uid', 'unset_logger',]
 
-    :returns: string of number, e.g. 20171122171307111552
+
+def date_uid():
+    """Generate a unique id based on date.
+
+    Returns:
+        str: Return uid string, e.g. '20171122171307111552'.
+
     """
     return str(datetime.datetime.now()).replace(
         '-', '').replace(
@@ -18,7 +23,7 @@ def date_uid():
                 ':', '').replace('.', '')
 
 
-LOGGER_DIR = 'neuralgym_logs/' + str(date_uid())
+LOGGER_DIR = 'neuralgym_logs/' + date_uid()
 LOGGER_FILE = 'neuralgym.log'
 LOGGING_CONFIG = dict(
     version=1,
@@ -57,12 +62,6 @@ if not os.path.exists(LOGGER_DIR):
 dictConfig(LOGGING_CONFIG)
 
 
-def unset_logger():
-    """Unset logger of neuralgym.
-    """
-    raise NotImplementedError('Unset logger function is not implemented yet.')
-
-
 from . import callbacks
 from . import ops
 from . import train
@@ -74,8 +73,15 @@ from .utils.gpus import set_gpus, get_gpus
 from .utils.config import Config
 
 
-__version__ = '0.0.1'
-__all__ = ['date_uid', 'get_gpus', 'set_gpus', 'unset_logger', 'Config']
-
 logger = logging.getLogger()
 logger.info('Set root logger. Unset logger with neuralgym.unset_logger().')
+
+
+def unset_logger():
+    """Unset logger of neuralgym.
+
+    Todo:
+        * How to unset logger properly.
+
+    """
+    raise NotImplementedError('Unset logger function is not implemented yet.')

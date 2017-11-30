@@ -16,29 +16,49 @@ READER_LOCK = threading.Lock()
 
 
 class DataFromFNames(Dataset):
-    """Data pipeline from list of filenames:
+    """Data pipeline from list of filenames.
 
     Args:
-        fnamelists (list): a list of filenames or tuple of filenames, e.g.
+        fnamelists (list): A list of filenames or tuple of filenames, e.g.
             ['image_001.png', ...] or
-            [('pair_image_001_0.png', 'pair_image_001_1.png'), ...]
-        shapes ():
-        random (bool): read from `fnamelists` randomly (default to False)
-        random_crop (bool): todo
-        dtypes (tf.Type): data types, default to tf.float32
-        enqueue_size (int): enqueue size for pipeline
-        enqueue_size (int): enqueue size for pipeline
-        nthreads (int): parallel threads for reading from data
+            [('pair_image_001_0.png', 'pair_image_001_1.png'), ...].
+        shapes (tuple): Shapes of data, e.g. [256, 256, 3] or
+            [[256, 256, 3], [1]].
+        random (bool): Read from `fnamelists` randomly (default to False).
+        random_crop (bool): If random crop to the shape from raw image or
+            directly resize raw images to the shape.
+        dtypes (tf.Type): Data types, default to tf.float32.
+        enqueue_size (int): Enqueue size for pipeline.
+        enqueue_size (int): Enqueue size for pipeline.
+        nthreads (int): Parallel threads for reading from data.
+        return_fnames (bool): If True, data_pipeline will also return fnames
+            (last tensor).
+        filetype (str): Currently only support image.
 
     Examples:
-        >>> # TODO
+        >>> fnames = ['img001.png', 'img002.png', ..., 'img999.png']
+        >>> data = ng.data.DataFromFNames(fnames, [256, 256, 3])
+        >>> images = data.data_pipeline(128)
+        >>> sess = tf.Session(config=tf.ConfigProto())
+        >>> tf.train.start_queue_runners(sess)
+        >>> for i in range(5): sess.run(images)
+
+    To get file lists, you can either use file::
+
+        with open('data/images.flist') as f:
+            fnames = f.read().splitlines()
+
+    or glob::
+
+        import glob
+        fnames = glob.glob('data/*.png')
+
     """
 
     def __init__(self, fnamelists, shapes, random=False, random_crop=False,
                  fn_preprocess=None, dtypes=tf.float32,
                  enqueue_size=32, queue_size=256, nthreads=16,
                  return_fnames=False, filetype='image'):
-        """ Initialize dataset. """
         self.fnamelists_ = self.process_fnamelists(fnamelists)
         self.file_length = len(self.fnamelists_)
         self.random = random
@@ -70,7 +90,6 @@ class DataFromFNames(Dataset):
         self.create_queue()
 
     def process_fnamelists(self, fnamelist):
-        """process fnamelist"""
         if isinstance(fnamelist, list):
             if isinstance(fnamelist[0], str):
                 return [(i,) for i in fnamelist]
@@ -82,14 +101,24 @@ class DataFromFNames(Dataset):
             raise ValueError('Type error for fnamelist.')
 
     def data_pipeline(self, batch_size):
-        """Return batch data queue"""
-        return self._queue.dequeue_many(batch_size)
+        """Batch data pipeline.
+
+        Args:
+            batch_size (int): Batch size.
+
+        Returns:
+            A tensor with shape [batch_size] and self.shapes
+                e.g. if self.shapes = ([256, 256, 3], [1]), then return
+                [[batch_size, 256, 256, 3], [batch_size, 1]].
+
+        """
+        data = self._queue.dequeue_many(batch_size)
+        return data
 
     def create_queue(self, shared_name=None, name=None):
-        """Create a queue."""
         from tensorflow.python.ops import data_flow_ops, logging_ops, math_ops
         from tensorflow.python.framework import dtypes
-        assert self.dtypes != None and self.shapes != None
+        assert self.dtypes is not None and self.shapes is not None
         assert len(self.dtypes) == len(self.shapes)
         capacity = self.queue_size
         self._queue = data_flow_ops.FIFOQueue(
@@ -111,7 +140,6 @@ class DataFromFNames(Dataset):
                 self._queue.size(), dtypes.float32) * (1. / capacity))
 
     def read_img(self, filename):
-        """read img and return image, true/false"""
         img = cv2.imread(filename)
         if img is None:
             logger.info('image is None, sleep this thread for 0.1s.')
@@ -122,9 +150,6 @@ class DataFromFNames(Dataset):
         return img, False
 
     def next_batch(self):
-        """
-        get next batch of data
-        """
         batch_data = []
         for _ in range(self.enqueue_size):
             error = True
@@ -153,18 +178,3 @@ class DataFromFNames(Dataset):
 
     def _maybe_download_and_extract(self):
         pass
-
-
-if __name__ == "__main__":
-    import glob
-    flist = glob.glob('/home/jhyu/data/imagenet/train/n01798484' + '/*.JPEG')
-    # data = DataFromFNames(flist, [64, 64, 3], return_fnames=True)
-    # image, names = data.data_pipeline(5)
-    data = DataFromFNames(flist, [64, 64, 3])
-    image = data.data_pipeline(5)
-    sess = tf.Session(config=tf.ConfigProto())
-    tf.train.start_queue_runners(sess=sess)
-    for i in range(2):
-        # oi, on = sess.run([image, names])
-        oi = sess.run(image)
-        from IPython import embed; embed()

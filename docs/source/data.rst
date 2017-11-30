@@ -1,8 +1,7 @@
 neuralgym.data
-===================
-.. currentmodule:: neuralgym.data
+==============
 
-.. autoclass:: DataFromFNames
+.. automodule:: neuralgym.data
     :members:
     :no-undoc-members:
     :show-inheritance:

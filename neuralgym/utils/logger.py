@@ -1,4 +1,3 @@
-""" logger utilities """
 import logging
 import shutil
 import sys
@@ -24,9 +23,11 @@ color2num = dict(
 def colorize(string, color, bold=False, highlight=False):
     attr = []
     num = color2num[color]
-    if highlight: num += 10
+    if highlight:
+        num += 10
     attr.append(str(num))
-    if bold: attr.append('1')
+    if bold:
+        attr.append('1')
     return '\x1b[%sm%s\x1b[0m' % (';'.join(attr), string)
 
 
@@ -44,12 +45,20 @@ def colored_log(prompt, texts, color='green', bold=True, highlight=False):
 
 def callback_log(texts):
     """Callback_log will show caller's location.
+
+    Args:
+        texts (str): Text to show.
+
     """
     colored_log('Trigger callback: ', texts)
 
 
 def warning_log(texts):
     """Warning_log will show caller's location and red texts.
+
+    Args:
+        texts (str): Text to show.
+
     """
     colored_log('Warning: ', texts, color='red')
 
@@ -57,6 +66,10 @@ def warning_log(texts):
 def error_log(texts):
     """Error_log will show caller's location, red texts and raise
     RuntimeError.
+
+    Args:
+        texts (str): Text to show.
+
     """
     colored_log('Error: ', texts, color='red')
     raise RuntimeError
@@ -82,7 +95,9 @@ class ProgressBar(object):
         self.restart()
 
     def restart(self):
-        """Restart time recorder and progress recorder."""
+        """Restart time recorder and progress recorder.
+
+        """
         # time recorders
         self._t_start = time.time()
         self._t_last = self._t_start
@@ -95,9 +110,11 @@ class ProgressBar(object):
     def progress(self, progress, texts=''):
         """Update progress bar with current progress and additional texts.
 
-        :param progress: float between [0,1] indicating progress
-        :param texts: additional texts (e.g. statistics) appear at the end
-            of progress bar
+        Args:
+            progress (float): A float between [0,1] indicating progress.
+            texts (str): additional texts (e.g. statistics) appear at the end
+                of progress bar.
+
         """
         term_length, _ = shutil.get_terminal_size()
         length = int(term_length / self._split_n)

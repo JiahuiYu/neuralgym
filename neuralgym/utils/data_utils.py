@@ -6,7 +6,9 @@ logger = logging.getLogger()
 
 
 def shuffle_file(filename):
-    """shuffle lines in file"""
+    """Shuffle lines in file.
+
+    """
     sp = filename.split('/')
     shuffled_filename = '/'.join(sp[:-1] + ['shuffled_{}'.format(sp[-1])])
     logger.info(shuffled_filename)
@@ -17,6 +19,7 @@ def shuffle_file(filename):
 def split_file(prefix, filename, split_num):
     """Split one file to split_num parts, return splited filenames.
     It could be viewed as a method of shuffling.
+
     """
     import random
     import string
@@ -32,7 +35,9 @@ def split_file(prefix, filename, split_num):
 
 
 def compute_mean(sess, images, steps):
-    """ Compute channel-wise mean of dataset. """
+    """Compute channel-wise mean of dataset.
+
+    """
     import numpy as np
     import tensorflow as tf
     from neuralgym.utils.logger import ProgressBar

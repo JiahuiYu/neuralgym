@@ -10,8 +10,8 @@ logger = logging.getLogger()
 def set_gpus(gpus):
     """Set environment variable CUDA_VISIBLE_DEVICES to a list of gpus.
 
-    :param gpus: gpu id or a list of gpu ids
-    :returns: None
+    Args:
+        gpus (int or list): GPU id or a list of GPU ids.
 
     """
     if not isinstance(gpus, list):
@@ -20,18 +20,21 @@ def set_gpus(gpus):
     logger.info('Set env: CUDA_VISIBLE_DEVICES={}.'.format(gpus))
 
 
-def get_gpus(num=1, dedicated=True, verbose=True):
+def get_gpus(num_gpus=1, dedicated=True, verbose=True):
     """Auto-select gpus for running by setting CUDA_VISIBLE_DEVICES.
 
-    :param num: gpu numbers to get
-    :param dedicated: dedicated gpu or not, i.e. one process for one gpu
-    :param verbose: display nvidia-smi info if true
-    :returns: a list of selected gpu
+    Args:
+        num_gpus (int): Number of GPU(s) to get.
+        dedicated (bool): Dedicated GPU or not, i.e. one process for one GPU.
+        verbose (bool): Display nvidia-smi info if verbose is true.
+
+    Returns:
+        list: A list of selected GPU(s).
 
     """
     ret = os.popen('nvidia-smi pmon -c 1').readlines()
     if ret == []:
-        # error, get no gpu
+        # error, get no GPU
         os.environ['CUDA_VISIBLE_DEVICES'] = ''
         logger.info('Error reading GPU information, set no GPU.')
         return None
@@ -58,13 +61,13 @@ def get_gpus(num=1, dedicated=True, verbose=True):
             else:
                 gpus[gpu_id] = 1
     sorted_gpus = sorted(gpus.items(), key=lambda x: x[1])
-    if len(sorted_gpus) < num:
+    if len(sorted_gpus) < num_gpus:
         raise SystemError(
-            'No enough gpus. {} v.s. {}.'.format(len(sorted_gpus), num))
-    if dedicated and sorted_gpus[num-1][1] != 0:
+            'No enough gpus. {} v.s. {}.'.format(len(sorted_gpus), num_gpus))
+    if dedicated and sorted_gpus[num_gpus-1][1] != 0:
         raise SystemError(
             'No enough gpus for dedicated usage.'
             ' [(gpu id: num of processes)]: {}'.format(sorted_gpus))
-    selected_gpu_ids = [g[0] for g in sorted_gpus][:num]
+    selected_gpu_ids = [g[0] for g in sorted_gpus][:num_gpus]
     set_gpus(selected_gpu_ids)
     return selected_gpu_ids
