@@ -58,3 +58,18 @@ SummaryWriter
 
 .. autoclass:: SummaryWriter
     :members:
+
+
+SecondaryTrainer
+~~~~~~~~~~~~~~~~
+
+.. autoclass:: SecondaryTrainer
+    :members:
+
+
+SecondaryMultiGPUTrainer
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: SecondaryMultiGPUTrainer
+    :members:
+

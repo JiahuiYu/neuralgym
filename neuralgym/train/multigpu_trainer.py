@@ -5,6 +5,7 @@ import threading
 import tensorflow as tf
 
 from ..utils.logger import ProgressBar
+from ..ops.train_ops import average_gradients, process_gradients
 from .trainer import Trainer
 
 
@@ -19,11 +20,7 @@ class MultiGPUTrainer(Trainer):
         self.context['graph_def'] = context.pop('graph_def')
         self.context['graph_def_kwargs'] = context.pop('graph_def_kwargs')
         self.context['async_train'] = context.pop('async_train', False)
-        self.train_op, self.context['loss'] = self.train_ops_and_losses()
-        if self.context['async_train']:
-            self.context['train_op'] = self.train_op[0]
-        else:
-            self.context['train_op'] = self.train_op
+        self._train_op, self._loss = self.train_ops_and_losses()
         super().__init__(**self.context)
 
     def train(self):
@@ -33,11 +30,9 @@ class MultiGPUTrainer(Trainer):
             while True:
                 sess.run(train_op)
 
-        if not self.context['async_train']:
-            super().train()
-        else:
+        if self.context['async_train']:
             train_threads = []
-            for i, train_op in enumerate(self.train_op):
+            for i, train_op in enumerate(self._train_op):
                 if i == 0:
                     # main thread
                     pass
@@ -57,51 +52,26 @@ class MultiGPUTrainer(Trainer):
                     t.join()
             except (KeyboardInterrupt, SystemExit):
                 logger.info("Training is stoped.")
-
-    def average_gradients(self, tower_grads):
-        """ Calculate the average gradient for each shared variable across
-        all towers.
-
-        **Note** that this function provides a synchronization point
-        across all towers.
-
-        :param tower_grads: List of lists of (gradient, variable) tuples.
-            The outer list is over individual gradients. The inner list is
-            over the gradient calculation for each tower.
-        :returns: List of pairs of (gradient, variable) where the gradient
-            has been averaged across all towers.
-        """
-        average_grads = []
-        for grad_and_vars in zip(*tower_grads):
-            v = grad_and_vars[0][1]
-            # sum
-            grad = tf.add_n([x[0] for x in grad_and_vars])
-            # average
-            grad = grad / float(len(tower_grads))
-            grad_and_var = (grad, v)
-            average_grads.append(grad_and_var)
-        return average_grads
+        else:
+            super().train()
 
     def train_ops_and_losses(self):
-        """Return loss of towers on different gpus.
-        """
         optimizer = self.context['optimizer']
+        loss = self.context.get('loss')
         var_list = self.context.get('var_list')
-        self.context['global_step'] = self.context.pop(
-            'global_step', tf.get_variable(
-                'global_step', [], dtype=tf.int32,
-                initializer=tf.zeros_initializer(), trainable=False))
-        global_step = self.context['global_step']
         graph_def_kwargs = self.context['graph_def_kwargs']
         gradient_processor = self.context.get('gradient_processor')
+        assert loss is None('For multigpu training, graph_def and kwargs'
+                            'should be provided, instead of loss.')
         tower_grads = []
         tower_losses = []
-        for gpu in range(self.context['gpu_num']):
+        for gpu in range(self.context.get('num_gpus')):
             with tf.device('/gpu:%d' % gpu):
                 # with tf.name_scope('tower_gpu%d' % gpu) as scope:
                 # Reuse variables for the next tower.
                 with tf.variable_scope(tf.get_variable_scope(), reuse=True):
-                    loss = self.context['graph_def'](gpu, **graph_def_kwargs)
+                    loss = self.context['graph_def'](
+                        gpu_id=gpu, **graph_def_kwargs)
                     tower_losses.append(loss)
                     # Calculate the gradients for the batch of data
                     grads = optimizer.compute_gradients(loss, var_list)
@@ -110,25 +80,18 @@ class MultiGPUTrainer(Trainer):
                             if grad is not None:
                                 tf.summary.histogram(
                                     'gradients/' + var.name, grad)
-                    # process gradients
-                    if gradient_processor is not None:
-                        grads = [grad for grad in grads if grad[0] is not None]
-                        grads = [gradient_processor(grad) for grad in grads]
-                    # Keep track of the gradients across all towers.
+                    grads = process_gradients(grads, gradient_processor)
                     tower_grads.append(grads)
+
         if self.context['async_train']:
             apply_gradient_op = []
-            loss = tower_losses[0]
+            loss = tower_losses[0]  # only monitor loss of first tower
             for i in range(len(tower_grads)):
-                if i != 0:
-                    global_step = None
                 apply_gradient_op.append(
-                    optimizer.apply_gradients(
-                        tower_grads[i], global_step=global_step))
+                    optimizer.apply_gradients(tower_grads[i]))
         else:
             # average gradients.
-            grads = self.average_gradients(tower_grads)
-            apply_gradient_op = optimizer.apply_gradients(
-                grads, global_step=global_step)
+            grads = average_gradients(tower_grads)
+            apply_gradient_op = optimizer.apply_gradients(grads)
             loss = tf.reduce_mean(tower_losses)
         return apply_gradient_op, loss

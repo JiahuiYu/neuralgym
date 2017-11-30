@@ -8,6 +8,7 @@ import tensorflow as tf
 from ..utils.logger import ProgressBar
 from ..callbacks import CallbackLoc
 from ..callbacks import PeriodicCallback, OnceCallback, ScheduledCallback
+from ..ops.train_ops import process_gradients
 
 
 logger = logging.getLogger()
@@ -24,97 +25,109 @@ class Trainer(object):
     * spe
     * feed_dict
     * max_iters
-    * log_dir
-    * global_step
-    * sess_config
-    * allow_growth
-    * gradient_processor
-    * loss
-    * summary writer
-    * saver
-    * global_variables_initializer
-    * start_queue_runners
-
-    :param optimizer:
-    :param spe:
-    :param feed_dict:
-    :param max_iters:
-    :param log_dir:
-    :param global_step:
-    :param sess_config:
-    :param allow_growth:
-    :param gradient_processor:
-    :param loss:
-    :param summary_writer:
-    :param saver:
-    :param global_variables_initializer:
-    :param start_queue_runners:
     """
 
-    def __init__(self, **context):
+    def __init__(self, primary=True, **context):
         self.context = context
-        self.callbacks = context.pop('callbacks', [])
+        self.primary = primary
+        self.callbacks = self.context.pop('callbacks', [])
         # contexts
-        self.context['feed_dict'] = context.pop('feed_dict', {})
-        self.context['max_iters'] = int(context.pop('max_iters', 9999999))
-        self.context['log_dir'] = context.pop('log_dir', '/tmp/neuralgym/')
-        self.context['sess_config'] = context.pop(
+        self.context['feed_dict'] = self.context.pop('feed_dict', {})
+        self.context['max_iters'] = int(self.context.pop('max_iters', 999999))
+        self.context['log_dir'] = self.context.pop('log_dir', '/tmp/neuralgym')
+        self.context['spe'] = self.context.pop('spe', 1)
+        # grads summary
+        self.context['grads_summary'] = self.context.pop(
+            'grads_summary', True)
+        # train ops and losses
+        self._train_op = self.context.pop('train_op', None)
+        if self._train_op is None:
+            self._train_op, self._loss = self.train_ops_and_losses()
+        else:
+            self._loss = self.context.pop('loss', 0)
+        # global step
+        self.context['log_progress'] = self.context.pop('log_progress', True)
+        if self.context['log_progress']:
+            self._bar = ProgressBar()
+        # total loss, beginning timepoint
+        self._log_stats = [0, None]
+        # callbacks types
+        self._periodic_callbacks = None
+        self._once_callbacks = None
+        self._scheduled_callbacks = None
+        # init primary trainer
+        if self.primary:
+            self.init_primary_trainer()
+        # log context of trainer
+        if self.primary:
+            logger.info(' Context Of Primary Trainer '.center(80, '-'))
+        else:
+            logger.info(' Context Of Secondary Trainer '.center(80, '-'))
+        for k in self.context:
+            logger.info(k + ': ' + str(self.context[k]))
+        logger.info(''.center(80, '-'))
+
+    def init_primary_trainer(self):
+        """Initialize primary trainer.
+        * log_dir
+        * global_step
+        * sess_config
+        * allow_growth
+        * summary writer
+        * saver
+        * global_variables_initializer
+        * start_queue_runners
+        Returns: TODO
+
+        """
+        self.context['global_step'] = self.context.pop(
+            'global_step', tf.get_variable(
+                'global_step', [], dtype=tf.int32,
+                initializer=tf.zeros_initializer(), trainable=False))
+        self.context['global_step_add_one'] = tf.assign_add(
+            self.context['global_step'], 1, name='add_one_to_global_step')
+        self.context['sess_config'] = self.context.pop(
             'sess_config', tf.ConfigProto())
-        self.context['sess_config'].gpu_options.allow_growth = context.pop(
-            'allow_growth', True)
-        self.context['sess_config'].allow_soft_placement = context.pop(
+        self.context['sess_config'].gpu_options.allow_growth = (
+            self.context.pop('allow_growth', True))
+        self.context['sess_config'].allow_soft_placement = self.context.pop(
             'allow_soft_placement', True)
         self.context['sess'] = tf.Session(config=self.context['sess_config'])
         self.context['summary_writer'] = tf.summary.FileWriter(
             self.context['log_dir'], self.context['sess'].graph)
         self.context['saver'] = tf.train.Saver(tf.global_variables())
-        # grads summary
-        self.context['grads_summary'] = context.pop(
-            'grads_summary', True)
-        # train ops and losses
-        self._train_op = context.pop('train_op', None)
-        if self._train_op is None:
-            self._train_op, self._loss = self.train_ops_and_losses()
-        else:
-            self._loss = context.pop('loss', 0)
-        # global step
-        self._bar = ProgressBar()
-        # callbacks types
-        self._periodic_callbacks = None
-        self._once_callbacks = None
-        self._scheduled_callbacks = None
         # queue runner
-        self.context['start_queue_runners'] = context.pop(
+        self.context['start_queue_runners'] = self.context.pop(
             'start_queue_runner', True)
         if self.context['start_queue_runners']:
             tf.train.start_queue_runners(sess=self.context['sess'])
         # initialization
-        self.context['global_variables_initializer'] = context.pop(
+        self.context['global_variables_initializer'] = self.context.pop(
             'global_variables_initializer', True)
         if self.context['global_variables_initializer']:
             self.context['sess'].run(tf.global_variables_initializer())
-        # total loss, beginning timepoint
-        self._log_stats = [0, None]
-        # log context of trainer
-        logger.info(' Context Of Trainer '.center(80, '-'))
-        for k in self.context:
-            logger.info(k + ': ' + str(self.context[k]))
-        logger.info(''.center(80, '-'))
 
     def train(self):
         """start training with callbacks."""
         sess = self.context['sess']
         max_iters = self.context['max_iters']
         self.update_callbacks()
-        step = 0
+        if self.context.get('global_step') is None:
+            step = 0
+            global_step_add_one = None
+        else:
+            step = sess.run(self.context['global_step'])
+            global_step_add_one = self.context['global_step_add_one']
         # once_callbacks at train start
         for cb in self._once_callbacks:
             if cb.cb_loc == CallbackLoc.train_start:
                 cb.run(sess)
         try:
             while step < max_iters:
-                # get current step
-                step = sess.run(self.context['global_step'])
+                # update and get current step
+                step += 1
+                if global_step_add_one is not None:
+                    sess.run(global_step_add_one)
                 # periodic callbacks at step start
                 for cb in self._periodic_callbacks:
                     if (cb.cb_loc == CallbackLoc.step_start and
@@ -131,7 +144,8 @@ class Trainer(object):
                 # if nan, exist
                 assert not np.isnan(loss_value)
                 # log one
-                self.progress_logger(step, loss_value)
+                if self.context['log_progress']:
+                    self.progress_logger(step, loss_value)
                 # periodic callbacks at step end
                 for cb in self._periodic_callbacks:
                     if (cb.cb_loc == CallbackLoc.step_end and
@@ -223,29 +237,20 @@ class Trainer(object):
                 self._scheduled_callbacks.append(cb)
 
     def train_ops_and_losses(self):
-        """define train ops and losses"""
         optimizer = self.context['optimizer']
-        self.context['global_step'] = self.context.pop(
-            'global_step', tf.get_variable(
-                'global_step', [], dtype=tf.int32,
-                initializer=tf.zeros_initializer(), trainable=False))
-        global_step = self.context['global_step']
-        loss = self.context['loss']
+        loss = self.context.get('loss')
         var_list = self.context.get('var_list')
+        graph_def_kwargs = self.context['graph_def_kwargs']
         gradient_processor = self.context.get('gradient_processor')
         if loss is None:
-            raise ValueError('loss is not defined.')
+            loss = self.context['graph_def'](**graph_def_kwargs)
         # get gradients
         grads = optimizer.compute_gradients(loss, var_list)
         if self.context['grads_summary']:
             for grad, var in grads:
                 if grad is not None:
                     tf.summary.histogram('gradients/' + var.name, grad)
-        # process gradients
-        if gradient_processor is not None:
-            grads = [grad for grad in grads if grad[0] is not None]
-            grads = [gradient_processor(grad) for grad in grads]
+        grads = process_gradients(grads, gradient_processor)
         # get operations
-        apply_gradient_op = optimizer.apply_gradients(
-            grads, global_step=global_step)
+        apply_gradient_op = optimizer.apply_gradients(grads)
         return apply_gradient_op, loss
