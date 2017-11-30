@@ -8,9 +8,11 @@ from ..utils.logger import callback_log
 class ModelSaver(PeriodicCallback):
     """Save model to file at every pstep step_start.
 
-    :param pstep: save to model every pstep
-    :param saver: tensorflow saver
-    :param dump_prefix: prefix for saving model files
+    Args:
+        pstep (int): Save to model every pstep.
+        saver: Tensorflow saver.
+        dump_prefix (str): Prefix for saving model files.
+
     """
 
     def __init__(self, pstep, saver, dump_prefix):

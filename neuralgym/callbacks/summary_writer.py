@@ -5,9 +5,11 @@ from . import PeriodicCallback, CallbackLoc
 class SummaryWriter(PeriodicCallback):
     """Periodically add summary.
 
-    :param pstep: call summary writer every pstep
-    :param summary_writer: tensorflow summary writer
-    :param summary: tensorflow summary collection
+    Args:
+        pstep (int): Call summary writer every pstep.
+        summary_writer: Tensorflow summary writer.
+        summary: Tensorflow summary collection.
+
     """
 
     def __init__(self, pstep, summary_writer, summary):

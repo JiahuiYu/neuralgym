@@ -14,10 +14,11 @@ logger = logging.getLogger()
 class ModelRestorer(OnceCallback):
     """Restore model from file either with dump_prefix or ckpt_file.
 
-    :param saver: tensorflow saver
-    :param dump_prefix: prefix of model files
-    :param ckpt_file: exact name of model file
-    :param optimistic: only restore weights of same names with model
+    Args:
+        saver: Tensorflow saver.
+        dump_prefix (str): Prefix of model files.
+        ckpt_file (str): Exact name of model file.
+        optimistic (bool): Only restore weights of same names with model.
     """
 
     def __init__(self, saver, dump_prefix=None, ckpt_file=None,
@@ -46,7 +47,7 @@ class ModelRestorer(OnceCallback):
                                 for var in tf.global_variables()
                                 if var.name.split(':')[0] in saved_shapes])
             restore_vars = []
-            name2var = dict(zip(map(lambda x:x.name.split(':')[0],
+            name2var = dict(zip(map(lambda x: x.name.split(':')[0],
                                     tf.global_variables()),
                                 tf.global_variables()))
             with tf.variable_scope('', reuse=True):

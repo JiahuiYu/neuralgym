@@ -8,9 +8,9 @@ from ..ops.summary_ops import scalar_summary
 from ..train.multigpu_trainer import MultiGPUTrainer
 
 
-
 class SecondaryMultiGPUTrainer(PeriodicCallback, MultiGPUTrainer):
-    """SecondaryMultiGPUTrainer
+
+    """SecondaryMultiGPUTrainer.
 
     """
 

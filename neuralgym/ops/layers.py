@@ -8,7 +8,9 @@ from tensorflow.python.ops import control_flow_ops
 
 def get_variable(name, shape, initializer, weight_decay=0.0, dtype='float',
                  trainable=True, freeze_weights=False):
-    """Simple wrapper for get_variable."""
+    """Simple wrapper for get_variable.
+
+    """
     if weight_decay > 0.:
         regularizer = tf.contrib.layers.l2_regularizer(weight_decay)
     else:
@@ -29,32 +31,42 @@ def int2list(shape):
 
 
 def NHWC_to_NCHW(x, name='NHWC_to_NCHW'):
-    """convert data format from NHWC to NCHW"""
+    """Convert data format from NHWC to NCHW.
+
+    """
     x = tf.transpose(x, [0, 3, 1, 2])
     return x
 
 
 def NCHW_to_NHWC(x, name='NCHW_to_NHWC'):
-    """convert data format from NCHW to NHWC"""
+    """Convert data format from NCHW to NHWC.
+
+    """
     x = tf.transpose(x, [0, 2, 3, 1])
     return x
 
 
 def NHWC_to_HWNC(x, name='NHWC_to_HWNC'):
-    """convert data format from NHWC to HWNC, may be used for re-indexing"""
+    """Convert data format from NHWC to HWNC, may be used for re-indexing.
+
+    """
     x = tf.transpose(x, [1, 2, 0, 3])
     return x
 
 
 def HWNC_to_NHWC(x, name='HWNC_to_NHWC'):
-    """convert data format from HWNC to NHWC, may be used for re-indexing"""
+    """Convert data format from HWNC to NHWC, may be used for re-indexing.
+
+    """
     x = tf.transpose(x, [2, 0, 1, 3])
     return x
 
 
 def apply_activation(x, relu, activation_fn, name='activation'):
-    """wrapper for apply activation.
-    NOTE: activation_fn has higher execution level."""
+    """Wrapper for apply activation.
+
+    **Note** activation_fn has higher execution level.
+    """
     with tf.variable_scope(name):
         if activation_fn is not None:
             return activation_fn(x)
@@ -66,7 +78,8 @@ def apply_activation(x, relu, activation_fn, name='activation'):
 
 def moving_average_var(x, decay=0.99, initial_value=0.,
                        name='moving_average_var'):
-    """moving_average_var.
+    """Moving_average_var.
+
     """
     moving_x = get_variable(
         name, x.get_shape(),
@@ -77,7 +90,9 @@ def moving_average_var(x, decay=0.99, initial_value=0.,
 
 
 def max_pool(x, ksize=2, stride=2, padding='SAME', name='max_pool'):
-    """Max pooling wrapper."""
+    """Max pooling wrapper.
+
+    """
     k = int2list(ksize)
     s = int2list(stride)
     with tf.variable_scope(name):
@@ -86,7 +101,9 @@ def max_pool(x, ksize=2, stride=2, padding='SAME', name='max_pool'):
 
 
 def avg_pool(x, ksize=2, stride=2, padding='SAME', name='avg_pool'):
-    """Average pooling wrapper."""
+    """Average pooling wrapper.
+
+    """
     k = int2list(ksize)
     s = int2list(stride)
     with tf.variable_scope(name):
@@ -115,15 +132,18 @@ def resize_nearest_neighbor(x, to_shape=None, scale=2, align_corners=True,
 
 def bilinear_upsample(x, scale=2):
     """Bilinear upsample.
+
     Caffe bilinear upsample forked from
     https://github.com/ppwwyyxx/tensorpack
     Deterministic bilinearly-upsample the input images.
+
     Args:
         x (tf.Tensor): a NHWC tensor
         scale (int): the upsample factor
 
     Returns:
         tf.Tensor: a NHWC tensor.
+
     """
     def bilinear_conv_filler(s):
         f = np.ceil(float(s) / 2)
@@ -164,9 +184,10 @@ def bilinear_upsample(x, scale=2):
 
 
 def transformer(U, theta, out_size=None, name='SpatialTransformer'):
-    """Spatial Transformer Layer
+    """Spatial Transformer Layer.
 
     Forked from tensorflow/models transformer.
+
     """
 
     def _repeat(x, n_repeats):
@@ -320,6 +341,7 @@ def batch_transformer(U, thetas, out_size, name='BatchSpatialTransformer'):
     Returns: float
         Tensor of size
         [num_batch*num_transforms,out_height,out_width,num_channels]
+
     """
     with tf.variable_scope(name):
         num_batch, num_transforms = map(int, thetas.get_shape().as_list()[:2])
@@ -420,7 +442,9 @@ def pixel_flow(x, offset, interpolation='bilinear', name='pixel_flow'):
 
 
 def concatenated_relu(x, name='concatenated_relu'):
-    """concatenated relu wrapper"""
+    """Concatenated relu wrapper.
+
+    """
     with tf.variable_scope(name):
         pos = tf.nn.relu(x)
         neg = tf.nn.relu(-x)
@@ -428,7 +452,9 @@ def concatenated_relu(x, name='concatenated_relu'):
 
 
 def scaled_elu(x, name='scaled_elu'):
-    """scaled elu wrapper"""
+    """Scaled elu wrapper.
+
+    """
     with tf.variable_scope(name):
         alpha = 1.6732632423543772848170429916717
         scale = 1.0507009873554804934193349852946
@@ -436,6 +462,8 @@ def scaled_elu(x, name='scaled_elu'):
 
 
 def flatten(x, name='flatten'):
-    """flatten wrapper"""
+    """Flatten wrapper.
+
+    """
     with tf.variable_scope(name):
         return tf.contrib.layers.flatten(x)

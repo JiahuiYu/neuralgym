@@ -18,14 +18,16 @@ logger = logging.getLogger()
 class NPZModelLoader(OnceCallback):
     """NPZModelLoader loads a model with weights in npz file.
 
-    Example usage::
+    Args:
+        npz_file (str): name of npz_file
+        weights: if provided, only load names in weights from npz file
+        variable_scope: if provided, load all weights in this scope,
+            otherwise load from default variable scope.
+
+    Examples::
 
         # TODO
 
-    :param npz_file: name of npz_file
-    :param weights: if provided, only load names in weights from npz file
-    :param variable_scope: if provided, load all weights in this scope,
-        otherwise load from default variable scope.
     """
 
     def __init__(self, npz_file, weights=None,

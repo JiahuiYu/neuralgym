@@ -15,7 +15,7 @@ logger = logging.getLogger()
 
 def collection_to_dict(collection):
     """Utility function to construct collection dict with names."""
-    return {v.name[:v.name.rfind(':')] : v for v in collection}
+    return {v.name[:v.name.rfind(':')]: v for v in collection}
 
 
 def scalar_summary(name, value, sess=None, summary_writer=None, step=None):
@@ -60,7 +60,7 @@ def scalar_summary(name, value, sess=None, summary_writer=None, step=None):
         if not is_tensor_or_var(value):
             logger.info(
                 'To write summary, create tensor for non-tensor value: '
-                + name + '_var.')
+                '%s_var.' % name)
             # create a summary variable
             value = tf.Variable(value, name=name+'_var')
             ph = tf.placeholder(value.dtype, name=name+'_ph')
@@ -121,7 +121,8 @@ def images_summary(images, name, max_outs, color_format='BGR'):
     """
     with tf.variable_scope(name), tf.device('/cpu:0'):
         if color_format == 'BGR':
-            img = tf.clip_by_value((tf.reverse(images, [-1])+1.)*127.5, 0., 255.)
+            img = tf.clip_by_value(
+                (tf.reverse(images, [-1])+1.)*127.5, 0., 255.)
         elif color_format == 'RGB':
             img = tf.clip_by_value((images+1.)*127.5, 0, 255)
         elif color_format == 'GREY':

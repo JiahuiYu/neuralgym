@@ -7,12 +7,13 @@ def average_gradients(tower_grads):
 
     Args:
         tower_grads: List of lists of (gradient, variable) tuples.
-        The outer list is over individual gradients. The inner list is
-        over the gradient calculation for each tower.
+            The outer list is over individual gradients. The inner list is
+            over the gradient calculation for each tower.
 
     Returns:
         List of pairs of (gradient, variable) where the gradient
-        has been averaged across all towers.
+            has been averaged across all towers.
+
     """
     average_grads = []
     for grad_and_vars in zip(*tower_grads):
@@ -30,10 +31,11 @@ def process_gradients(grads, gradient_processor):
     """Process gradients with func.
 
     Args:
-        grads (list): list of grad, var
-        gradient_processor (function): function to processs gradients
+        grads (list): List of (grad, var).
+        gradient_processor (function): Function to processs gradients.
 
-    Returns: TODO
+    Returns:
+        list: grads.
 
     """
     if gradient_processor is not None:

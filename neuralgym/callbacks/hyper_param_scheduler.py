@@ -10,7 +10,9 @@ class HyperParamScheduler(ScheduledCallback):
     """Set hyper parameters according to schedule.
 
     This callback sets hyper parameters with numpy using tf.assign
-    according to schedule.  Example usage::
+    according to schedule.
+
+    Examples::
 
         HyperParamScheduler(
             'lr',

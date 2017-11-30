@@ -14,10 +14,12 @@ logger = logging.getLogger()
 class WeightsViewer(OnceCallback):
     """WeightsViewer logs names and size of all weights.
 
-    :param counts: counting trainalbe weights
-    :param size: size of trainable weights
-    :param verbose: display each trainable variable
-    :param hist_summary: histogram summary of all trainable weights
+    Args:
+        counts (bool): Counting trainalbe weights or not.
+        size (bool): Size of trainable weights or not.
+        verbose (bool): Display each trainable variable or not.
+        hist_summary (bool): Histogram summary of trainable weights or not.
+
     """
 
     def __init__(self, counts=True, size=True, verbose=True,
@@ -44,7 +46,7 @@ class WeightsViewer(OnceCallback):
             if self.hist_summary:
                 tf.summary.histogram(var.name, var)
         if self.counts:
-            callback_log('Total counts of trainable weights: %d.'%total_size)
+            callback_log('Total counts of trainable weights: %d.' % total_size)
         if self.size:
             # Data is 32-bit datatype in most cases.
             total = total_size * 4
@@ -52,8 +54,7 @@ class WeightsViewer(OnceCallback):
             k_size = (total_size//1024) % 1024
             m_size = (total_size//(1024 * 1024)) % 1024
             g_size = (total_size//(1024 * 1024 * 1024)) % 1024
-
             # log
-            logger.info('Total size of trainable weights: %dG %dM %dK %dB'
-                         ' (Assuming 32-bit data type.)' % (
-                             g_size, m_size, k_size, b_size))
+            logger.info(
+                'Total size of trainable weights: %dG %dM %dK %dB (Assuming'
+                '32-bit data type.)' % (g_size, m_size, k_size, b_size))

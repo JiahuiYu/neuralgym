@@ -19,10 +19,11 @@ class Callback(object):
     """Callback class.
 
     Callbacks are functions that execute automatically during
-    training/evaluation process. For examples, saving/loading models,
-    scheduling learning rate, updating network parameters (assigning target
+    training/evaluation process (primary trainer). For examples,
+    saving/loading models, scheduling learning rate,
+    updating network parameters (assigning target
     network in reinforcement learning), summary learning processes,
-    saving images, etc.
+    saving images, secondary trainer (generative adversarial network), etc.
 
     Currently there are three types of callbacks:
 
@@ -30,13 +31,14 @@ class Callback(object):
     * :class:`.PeriodicCallback`
     * :class:`.ScheduledCallback`
 
-    and five types of locations to call (supported in trainer):
+    and five types of locations to call (supported in primary trainer):
 
     * train_start
     * train_end
     * step_start
     * step_end
     * exception
+
     """
 
     def __init__(self, cb_loc):
@@ -63,10 +65,12 @@ class PeriodicCallback(Callback):
 
     of training every p steps periodically.
 
-    :param cb_loc: callback location
-    :param pstep: run function every pstep
-    :param func: function to call
-    :param \*\*kwargs: kwargs for function
+    Args:
+        cb_loc: callback location
+        pstep (int): run function every pstep
+        func (function): function to call
+        \*\*kwargs: kwargs for function
+
     """
 
     def __init__(self, cb_loc, pstep, func=None, **kwargs):
@@ -128,9 +132,10 @@ class ScheduledCallback(Callback):
 
     according to recorded step in schedule.
 
-    :param cb_loc: callback location
-    :param schedule: a dict, with step as its key, funcs as its value:
-        e.g. {1: func1, 80: func2}
+    Args:
+        cb_loc: callback location
+        schedule (dict): a dict, with step as its key, funcs as its value:
+            e.g. {1: func1, 80: func2}
     """
 
     def __init__(self, cb_loc, schedule):

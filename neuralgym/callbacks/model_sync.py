@@ -17,14 +17,16 @@ class ModelSync(PeriodicCallback):
     Currently it only supports sync trainable variables from one namescope to
     another namescope, which is enough for reinforcement learning.
 
-    Example usage::
+    Args:
+        pstep (int): Sync every pstep.
+        from_namescope (str): Sync from from_namescope.
+        to_namescope (str): Sync to to_namescope.
+        step_start: Sync at step_start, otherwise at step_end.
+
+    Examples::
 
         # TODO
 
-    :param pstep: sync every pstep
-    :param from_namescope: sync from from_namescope
-    :param to_namescope: sync to to_namescope
-    :param step_start: sync at step_start, otherwise at step_end
     """
 
     def __init__(self, pstep, from_namescope, to_namescope, step_start=False):

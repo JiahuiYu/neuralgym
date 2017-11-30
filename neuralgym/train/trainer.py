@@ -1,4 +1,3 @@
-"""Class for single-GPU trainer."""
 import time
 import logging
 
@@ -17,14 +16,11 @@ logger = logging.getLogger()
 class Trainer(object):
     """Trainer class for train iterative algorithm on single GPU.
 
-    Trainer contains all tensorflow related instances and configurations. TODO
-    Trainer has objective (loss), callbacks, and all context information
-    including:
-
-    * optimizer
-    * spe
-    * feed_dict
-    * max_iters
+    There are two types of trainer in neuralgym: primary trainer and
+    secondary trainer. For primary trainer, tensorflow related instances
+    and configurations will be initialized, e.g. init all variables, summary
+    writer, session, start_queue_runner and others. For the secondary trainer
+    only train_ops and losses are iteratively updated/ran.
     """
 
     def __init__(self, primary=True, **context):
@@ -68,16 +64,16 @@ class Trainer(object):
         logger.info(''.center(80, '-'))
 
     def init_primary_trainer(self):
-        """Initialize primary trainer.
-        * log_dir
-        * global_step
-        * sess_config
-        * allow_growth
-        * summary writer
-        * saver
-        * global_variables_initializer
-        * start_queue_runners
-        Returns: TODO
+        """Initialize primary trainer context including:
+
+            * log_dir
+            * global_step
+            * sess_config
+            * allow_growth
+            * summary writer
+            * saver
+            * global_variables_initializer
+            * start_queue_runners
 
         """
         self.context['global_step'] = self.context.pop(
@@ -108,7 +104,9 @@ class Trainer(object):
             self.context['sess'].run(tf.global_variables_initializer())
 
     def train(self):
-        """start training with callbacks."""
+        """Start training with callbacks.
+
+        """
         sess = self.context['sess']
         max_iters = self.context['max_iters']
         self.update_callbacks()
@@ -173,7 +171,7 @@ class Trainer(object):
     def progress_logger(self, step, loss):
         """Progress bar for logging.
 
-        **Note** that all statistics are averaged over epoch.
+        **Note** all statistics are averaged over epoch.
         """
         # init
         if self._log_stats[1] is None:
@@ -212,17 +210,20 @@ class Trainer(object):
         return
 
     def add_callbacks(self, callbacks):
-        """ add callbacks """
+        """Add callbacks.
+
+        Args:
+            callbacks: dict of callbacks
+        """
         # keep order
         self.callbacks = self.callbacks + callbacks
         # after add callbacks, update callbacks list.
         self.update_callbacks()
 
     def update_callbacks(self):
-        """update callbacks to sub-callbacks"""
         def _check_type(t, cb):
-            """check callback types"""
             return t == cb.__class__ or t in cb.__class__.__bases__
+
         # clear
         self._periodic_callbacks = []
         self._once_callbacks = []

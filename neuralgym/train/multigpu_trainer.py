@@ -13,18 +13,24 @@ logger = logging.getLogger()
 
 
 class MultiGPUTrainer(Trainer):
-    """Trainer class for train iterative algorithm on multi GPUs."""
+    """Trainer class for train iterative algorithm on multi GPUs.
+
+    Args:
+        num_gpus (int): Number of GPU(s) for training.
+        async_train (bool): Asynchronous train or not.
+
+    """
 
     def __init__(self, **context):
         self.context = context
-        self.context['graph_def'] = context.pop('graph_def')
-        self.context['graph_def_kwargs'] = context.pop('graph_def_kwargs')
         self.context['async_train'] = context.pop('async_train', False)
         self._train_op, self._loss = self.train_ops_and_losses()
         super().__init__(**self.context)
 
     def train(self):
-        """start training with callbacks"""
+        """Start training with callbacks.
+
+        """
         def train_function(sess, train_op):
             """"""
             while True:
