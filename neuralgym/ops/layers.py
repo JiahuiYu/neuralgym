@@ -111,22 +111,21 @@ def avg_pool(x, ksize=2, stride=2, padding='SAME', name='avg_pool'):
             x, [1, k[0], k[1], 1], [1, s[0], s[1], 1], padding)
 
 
-def resize_nearest_neighbor(x, to_shape=None, scale=2, align_corners=True,
-                            name='resize_nearest_neighbor'):
-    with tf.variable_scope(name):
-        # xs = x.get_shape().as_list()
+def resize(x, scale=2, to_shape=None, align_corners=True, dynamic=False,
+           func=tf.image.resize_bilinear, name='resize'):
+    if dynamic:
         xs = tf.cast(tf.shape(x), tf.float32)
+        new_xs = [tf.cast(xs[1]*scale, tf.int32),
+                  tf.cast(xs[2]*scale, tf.int32)]
+    else:
+        xs = x.get_shape().as_list()
+        new_xs = [int(xs[1]*scale), int(xs[2]*scale)]
+    with tf.variable_scope(name):
         if to_shape is None:
-            x = tf.image.resize_nearest_neighbor(
-                x,
-                [tf.cast(xs[1]*scale, tf.int32),
-                 tf.cast(xs[2]*scale, tf.int32)],
-                align_corners=align_corners)
+            x = func(x, new_xs, align_corners=align_corners)
         else:
-            x = tf.image.resize_nearest_neighbor(
-                x,
-                [to_shape[0], to_shape[1]],
-                align_corners=align_corners)
+            x = func(x, [to_shape[0], to_shape[1]],
+                     align_corners=align_corners)
     return x
 
 
