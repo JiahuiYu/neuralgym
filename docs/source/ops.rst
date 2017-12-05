@@ -29,3 +29,10 @@ image_ops
 .. automodule:: neuralgym.ops.image_ops
     :members:
     :no-undoc-members:
+
+gan_ops
+-------
+
+.. automodule:: neuralgym.ops.gan_ops
+    :members:
+    :no-undoc-members:
