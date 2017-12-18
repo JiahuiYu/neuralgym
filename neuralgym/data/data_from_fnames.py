@@ -53,6 +53,14 @@ class DataFromFNames(Dataset):
         import glob
         fnames = glob.glob('data/*.png')
 
+    You can also create fnames tuple::
+
+        with open('images.flist') as f:
+            image_fnames = f.read().splitlines()
+        with open('segmentation_annotation.flist') as f:
+            annotation_fnames = f.read().splitlines()
+        fnames = list(zip(image_fnames, annatation_fnames))
+
     """
 
     def __init__(self, fnamelists, shapes, random=False, random_crop=False,
@@ -162,11 +170,14 @@ class DataFromFNames(Dataset):
                         filenames = self.fnamelists_[self.index]
                         self.index = (self.index + 1) % self.file_length
                 imgs = []
+                random_h = None
+                random_w = None
                 for i in range(len(filenames)):
                     img, error = self.read_img(filenames[i])
                     if self.random_crop:
-                        img = np_random_crop(
-                            img, tuple(self.shapes[i][:-1]), align=False)
+                        img, random_h, random_w = np_random_crop(
+                            img, tuple(self.shapes[i][:-1]),
+                            random_h, random_w, align=False)  # use last rand
                     else:
                         img = cv2.resize(img, tuple(self.shapes[i][:-1]))
                     imgs.append(img)

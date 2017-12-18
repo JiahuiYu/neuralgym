@@ -29,21 +29,29 @@ def np_scale_to_shape(image, shape, align=True):
     return image
 
 
-def np_random_crop(image, shape, align=True):
+def np_random_crop(image, shape, random_h=None, random_w=None, align=True):
     """Random crop.
 
-    shape from image.
+    Shape from image.
 
     Args:
-        image: numpy image, 2d or 3d
-        shape: (height, width)
+        image: Numpy image, 2d or 3d.
+        shape: (height, width).
+        random_h: A random int.
+        random_w: A random int.
 
     Returns:
         numpy image
+        int: random_h
+        int: random_w
+
     """
     height, width = shape
     image = np_scale_to_shape(image, shape, align=align)
     imgh, imgw = image.shape[0:2]
-    h = np.random.randint(imgh-height+1)
-    w = np.random.randint(imgw-width+1)
-    return image[h:h+height, w:w+width, :]
+    if random_h is None:
+        random_h = np.random.randint(imgh-height+1)
+    if random_w is None:
+        random_w = np.random.randint(imgw-width+1)
+    return (image[random_h:random_h+height, random_w:random_w+width, :],
+            random_h, random_w)

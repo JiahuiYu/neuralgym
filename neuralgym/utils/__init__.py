@@ -5,4 +5,4 @@ from . import data_utils
 
 
 __all__ = ['callback_log', 'warning_log', 'error_log', 'colored_log',
-           'get_sess', 'ProgressBar', ]
+           'ProgressBar', ]

@@ -7,7 +7,8 @@ from .utils.logger import colorize
 
 
 __version__ = '0.0.1'
-__all__ = ['Config', 'get_gpus', 'set_gpus', 'date_uid', 'unset_logger',]
+__all__ = ['Config', 'get_gpus', 'set_gpus', 'date_uid', 'unset_logger',
+           'get_sess']
 
 
 def date_uid():
@@ -70,6 +71,7 @@ from . import data
 from . import server
 
 from .utils.gpus import set_gpus, get_gpus
+from .utils.tf_utils import get_sess
 from .utils.config import Config
 
 

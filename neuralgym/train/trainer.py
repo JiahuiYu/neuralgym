@@ -213,8 +213,11 @@ class Trainer(object):
         """Add callbacks.
 
         Args:
-            callbacks: dict of callbacks
+            callbacks: list of callbacks
+
         """
+        if not isinstance(callbacks, list):
+            callbacks = [callbacks]
         # keep order
         self.callbacks = self.callbacks + callbacks
         # after add callbacks, update callbacks list.
