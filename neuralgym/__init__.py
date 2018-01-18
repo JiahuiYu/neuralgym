@@ -77,6 +77,7 @@ from .utils.config import Config
 
 logger = logging.getLogger()
 logger.info('Set root logger. Unset logger with neuralgym.unset_logger().')
+logger.info('Saving logging to file: {}.'.format(LOGGER_DIR))
 
 
 def unset_logger():
