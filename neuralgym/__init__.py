@@ -24,7 +24,8 @@ def date_uid():
                 ':', '').replace('.', '')
 
 
-LOGGER_DIR = 'neuralgym_logs/' + date_uid()
+UID = date_uid()
+LOGGER_DIR = 'neuralgym_logs/' + UID
 LOGGER_FILE = 'neuralgym.log'
 LOGGING_CONFIG = dict(
     version=1,
@@ -87,4 +88,7 @@ def unset_logger():
         * How to unset logger properly.
 
     """
-    raise NotImplementedError('Unset logger function is not implemented yet.')
+    logger.info('Unseted logger.')
+    for handle in logger.handlers:
+        logger.removeHandler(handle)
+    # raise NotImplementedError('Unset logger function is not implemented yet.')
