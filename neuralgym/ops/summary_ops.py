@@ -10,9 +10,6 @@ __all__ = ['scalar_summary', 'filters_summary', 'images_summary',
            'gradients_summary']
 
 
-logger = logging.getLogger()
-
-
 def collection_to_dict(collection):
     """Utility function to construct collection dict with names."""
     return {v.name[:v.name.rfind(':')]: v for v in collection}
@@ -58,7 +55,7 @@ def scalar_summary(name, value, sess=None, summary_writer=None, step=None):
         summary = collection[fname]
     else:
         if not is_tensor_or_var(value):
-            logger.info(
+            print(
                 'To write summary, create tensor for non-tensor value: '
                 '%s_var.' % name)
             # create a summary variable

@@ -4,9 +4,6 @@ import re
 import logging
 
 
-logger = logging.getLogger()
-
-
 def set_gpus(gpus):
     """Set environment variable CUDA_VISIBLE_DEVICES to a list of gpus.
 
@@ -17,7 +14,7 @@ def set_gpus(gpus):
     if not isinstance(gpus, list):
         gpus = [gpus]
     os.environ['CUDA_VISIBLE_DEVICES'] = ','.join(str(e) for e in gpus)
-    logger.info('Set env: CUDA_VISIBLE_DEVICES={}.'.format(gpus))
+    print('Set env: CUDA_VISIBLE_DEVICES={}.'.format(gpus))
 
 
 def get_gpus(num_gpus=1, dedicated=True, verbose=True):
@@ -36,7 +33,7 @@ def get_gpus(num_gpus=1, dedicated=True, verbose=True):
     if ret == []:
         # error, get no GPU
         os.environ['CUDA_VISIBLE_DEVICES'] = ''
-        logger.info('Error reading GPU information, set no GPU.')
+        print('Error reading GPU information, set no GPU.')
         return None
     """
     # gpu     pid  type    sm   mem   enc   dec   command

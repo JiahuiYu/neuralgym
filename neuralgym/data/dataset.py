@@ -4,9 +4,6 @@ import logging
 import tensorflow as tf
 
 
-logger = logging.getLogger()
-
-
 class Dataset(object):
     """Base class for datasets.
 
@@ -23,18 +20,18 @@ class Dataset(object):
 
         """
         dicts = vars(self)
-        logger.info(' Dataset Info '.center(80, '-'))
+        print(' Dataset Info '.center(80, '-'))
         for key in dicts:
             # not in a recursive way.
             if isinstance(dicts[key], dict):
-                logger.info('%s:', key)
+                print('%s:', key)
                 tmp_dicts = dicts[key]
                 for tmp_key in tmp_dicts:
-                    logger.info('  %s: %s', tmp_key, tmp_dicts[tmp_key])
+                    print('  {}: {}'.format(tmp_key, tmp_dicts[tmp_key]))
             else:
                 if key[-1] != '_':
-                    logger.info('%s: %s', key, dicts[key])
-        logger.info(''.center(80, '-'))
+                    print('{}: {}'.format(key, dicts[key]))
+        print(''.center(80, '-'))
 
     @abstractmethod
     def maybe_download_and_extract(self):

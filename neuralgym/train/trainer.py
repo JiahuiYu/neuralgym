@@ -10,9 +10,6 @@ from ..callbacks import PeriodicCallback, OnceCallback, ScheduledCallback
 from ..ops.train_ops import process_gradients
 
 
-logger = logging.getLogger()
-
-
 class Trainer(object):
     """Trainer class for train iterative algorithm on single GPU.
 
@@ -56,12 +53,12 @@ class Trainer(object):
             self.init_primary_trainer()
         # log context of trainer
         if self.primary:
-            logger.info(' Context Of Primary Trainer '.center(80, '-'))
+            print(' Context Of Primary Trainer '.center(80, '-'))
         else:
-            logger.info(' Context Of Secondary Trainer '.center(80, '-'))
+            print(' Context Of Secondary Trainer '.center(80, '-'))
         for k in self.context:
-            logger.info(k + ': ' + str(self.context[k]))
-        logger.info(''.center(80, '-'))
+            print(k + ': ' + str(self.context[k]))
+        print(''.center(80, '-'))
 
     def init_primary_trainer(self):
         """Initialize primary trainer context including:
@@ -155,7 +152,7 @@ class Trainer(object):
                             step in cb.schedule):
                         cb.run(sess, step)
         except (KeyboardInterrupt, SystemExit):
-            logger.info("Training is stoped.")
+            print("Training is stoped.")
         except:
             raise
         finally:

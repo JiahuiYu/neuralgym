@@ -11,7 +11,6 @@ from .dataset import Dataset
 from ..ops.image_ops import np_random_crop
 
 
-logger = logging.getLogger()
 READER_LOCK = threading.Lock()
 
 
@@ -150,7 +149,7 @@ class DataFromFNames(Dataset):
     def read_img(self, filename):
         img = cv2.imread(filename)
         if img is None:
-            logger.info('image is None, sleep this thread for 0.1s.')
+            print('image is None, sleep this thread for 0.1s.')
             time.sleep(0.1)
             return img, True
         if self.fn_preprocess:

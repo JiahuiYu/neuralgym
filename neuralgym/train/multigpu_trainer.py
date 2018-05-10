@@ -9,9 +9,6 @@ from ..ops.train_ops import average_gradients, process_gradients
 from .trainer import Trainer
 
 
-logger = logging.getLogger()
-
-
 class MultiGPUTrainer(Trainer):
     """Trainer class for train iterative algorithm on multi GPUs.
 
@@ -50,14 +47,14 @@ class MultiGPUTrainer(Trainer):
             # Start the threads, and block on their completion.
             try:
                 for t in train_threads:
-                    logger.info("Start new thread for async training.")
+                    print("Start new thread for async training.")
                     t.start()
                 # start main thread
                 super().train()
                 for t in train_threads:
                     t.join()
             except (KeyboardInterrupt, SystemExit):
-                logger.info("Training is stoped.")
+                print("Training is stoped.")
         else:
             super().train()
 

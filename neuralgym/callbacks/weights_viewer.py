@@ -8,9 +8,6 @@ from . import CallbackLoc, OnceCallback
 from ..utils.logger import callback_log
 
 
-logger = logging.getLogger()
-
-
 class WeightsViewer(OnceCallback):
     """WeightsViewer logs names and size of all weights.
 
@@ -38,7 +35,7 @@ class WeightsViewer(OnceCallback):
             if self.counts or self.size:
                 w_size = np.prod(var.get_shape().as_list())
                 if self.verbose:
-                    logger.info(
+                    print(
                         '- weight name: {}, shape: {}, size: {}'.format(
                             var.name, var.get_shape().as_list(), w_size))
                 total_size += w_size
@@ -55,6 +52,6 @@ class WeightsViewer(OnceCallback):
             m_size = (total_size//(1024 * 1024)) % 1024
             g_size = (total_size//(1024 * 1024 * 1024)) % 1024
             # log
-            logger.info(
+            print(
                 'Total size of trainable weights: %dG %dM %dK %dB (Assuming'
                 '32-bit data type.)' % (g_size, m_size, k_size, b_size))

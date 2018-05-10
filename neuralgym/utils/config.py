@@ -4,9 +4,6 @@ import os
 import yaml
 
 
-logger = logging.getLogger()
-
-
 class LoaderMeta(type):
     """Constructor for supporting `!include`."""
 
@@ -89,9 +86,9 @@ class Config(dict):
         # parent of IOError, OSError *and* WindowsError where available
         except EnvironmentError:
             logger.error('Please check the file with name of "%s"', filename)
-        logger.info(' APP CONFIG '.center(80, '-'))
+        print(' APP CONFIG '.center(80, '-'))
         self.show()
-        logger.info(''.center(80, '-'))
+        print(''.center(80, '-'))
 
     def __getattr__(self, name):
         value = self._cfg_dict[name]
@@ -108,7 +105,7 @@ class Config(dict):
                 str_list = ['  '] * indent
                 str_list.append(str(key))
                 str_list.append(': ')
-                logger.info(''.join(str_list))
+                print(''.join(str_list))
                 indent = indent + 1
                 indent = self.show(value, indent)
             else:
@@ -116,5 +113,5 @@ class Config(dict):
                 str_list.append(str(key))
                 str_list.append(': ')
                 str_list.append(str(value))
-                logger.info(''.join(str_list))
+                print(''.join(str_list))
         return indent - 1

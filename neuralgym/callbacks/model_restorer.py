@@ -8,9 +8,6 @@ from . import CallbackLoc, OnceCallback
 from ..utils.logger import callback_log
 
 
-logger = logging.getLogger()
-
-
 class ModelRestorer(OnceCallback):
     """Restore model from file either with dump_prefix or ckpt_file.
 
@@ -56,7 +53,7 @@ class ModelRestorer(OnceCallback):
                     var_shape = curr_var.get_shape().as_list()
                     if var_shape == saved_shapes[saved_var_name]:
                         restore_vars.append(curr_var)
-                        logger.info('- restoring variable: {}'
+                        print('- restoring variable: {}'
                                     .format(curr_var.name))
             saver = tf.train.Saver(restore_vars)
             saver.restore(sess, ckpt_file)
@@ -67,5 +64,5 @@ class ModelRestorer(OnceCallback):
             if self._optimistic:
                 optimistic_restore(sess, self._ckpt_file)
             else:
-                logger.info('- restoring all variables.')
+                print('- restoring all variables.')
                 self._saver.restore(sess, self._ckpt_file)

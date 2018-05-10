@@ -12,9 +12,6 @@ from . import CallbackLoc, OnceCallback
 from ..utils.logger import callback_log
 
 
-logger = logging.getLogger()
-
-
 class NPZModelLoader(OnceCallback):
     """NPZModelLoader loads a model with weights in npz file.
 
@@ -71,8 +68,8 @@ class NPZModelLoader(OnceCallback):
                         'name: %s.', self._weights[name].name)
                 else:
                     sess.run(self._weights[name].assign(npy))
-                    logger.info('Loaded weights of name: %s.',
+                    print('Loaded weights of name: %s.',
                                 self._weights[name].name)
             else:
-                logger.info('Ignored weights of name: %s.',
+                print('Ignored weights of name: %s.',
                             self._weights[name].name)

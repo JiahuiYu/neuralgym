@@ -24,46 +24,6 @@ def date_uid():
                 ':', '').replace('.', '')
 
 
-UID = date_uid()
-LOGGER_DIR = 'neuralgym_logs/' + UID
-LOGGER_FILE = 'neuralgym.log'
-LOGGING_CONFIG = dict(
-    version=1,
-    formatters={
-        'f': {
-            'format': colorize('[%(asctime)s @%(filename)s:%(lineno)d]',
-                               'green') + ' %(message)s',
-            'datefmt': '%Y-%m-%d %H:%M:%S'},
-        'ff': {
-            'format':
-            '[%(levelname)-5s %(asctime)s @%(filename)s:%(lineno)d] '
-            '%(message)s',
-            'datefmt': '%Y-%m-%d %H:%M:%S'}
-        },
-    handlers={
-        'h': {
-            'class': 'logging.StreamHandler', 'formatter': 'f',
-            'level': logging.DEBUG},
-        'fh': {
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(LOGGER_DIR, LOGGER_FILE),
-            'formatter': 'ff',
-            'level': logging.DEBUG}
-        },
-    root={
-        'handlers': ['h', 'fh'],
-        'level': logging.DEBUG,
-        },
-)
-
-
-if not os.path.exists(LOGGER_DIR):
-    os.makedirs(LOGGER_DIR)
-
-
-dictConfig(LOGGING_CONFIG)
-
-
 from . import callbacks
 from . import ops
 from . import train
@@ -74,21 +34,3 @@ from . import server
 from .utils.gpus import set_gpus, get_gpus
 from .utils.tf_utils import get_sess
 from .utils.config import Config
-
-
-logger = logging.getLogger()
-logger.info('Set root logger. Unset logger with neuralgym.unset_logger().')
-logger.info('Saving logging to file: {}.'.format(LOGGER_DIR))
-
-
-def unset_logger():
-    """Unset logger of neuralgym.
-
-    Todo:
-        * How to unset logger properly.
-
-    """
-    logger.info('Unseted logger.')
-    for handle in logger.handlers:
-        logger.removeHandler(handle)
-    # raise NotImplementedError('Unset logger function is not implemented yet.')
