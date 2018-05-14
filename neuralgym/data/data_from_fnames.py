@@ -141,10 +141,10 @@ class DataFromFNames(Dataset):
             self._queue, [enq]*self.nthreads,
             feed_dict_op=[lambda: self.next_batch()],
             feed_dict_key=self.batch_phs))
-        summary_name = 'fraction_of_%d_full' % capacity
-        logging_ops.scalar_summary("queue/%s/%s" % (
-            self._queue.name, summary_name), math_ops.cast(
-                self._queue.size(), dtypes.float32) * (1. / capacity))
+        # summary_name = 'fraction_of_%d_full' % capacity
+        # logging_ops.scalar_summary("queue/%s/%s" % (
+            # self._queue.name, summary_name), math_ops.cast(
+                # self._queue.size(), dtypes.float32) * (1. / capacity))
 
     def read_img(self, filename):
         img = cv2.imread(filename)

@@ -89,6 +89,33 @@ def moving_average_var(x, decay=0.99, initial_value=0.,
     return moving_x
 
 
+def depthwise_conv2d(x, ksize=3, stride=1, decay=0.0, biased=True, relu=False,
+         activation_fn=None, w_init=tf.contrib.layers.xavier_initializer_conv2d(),
+         padding='SAME', name='depthwise_conv2d'):
+    """Simple wrapper for convolution layer.
+    Padding can be 'SAME', 'VALID', 'REFLECT', 'SYMMETRIC'
+    """
+    ksize = int2list(ksize)
+    stride = int2list(stride)
+    filters_in = x.get_shape()[-1]
+    with tf.variable_scope(name):
+        if padding == 'SYMMETRIC' or padding == 'REFELECT':
+            x = tf.pad(x, [[0,0], [int((ksize[0]-1)/2), int((ksize[0]-1)/2)], [int((ksize[1]-1)/2), int((ksize[1]-1)/2)], [0,0]], mode=padding)
+            padding = 'VALID'
+        weights = get_variable(
+            'weights', [ksize[0], ksize[1], filters_in, 1],
+            initializer=w_init, weight_decay=decay)
+        conv_data = tf.nn.depthwise_conv2d(
+            x, weights, strides=[1, stride[0], stride[1], 1], padding=padding)
+        if biased:
+            biases = get_variable(
+                'biases', [filters_in], initializer=tf.zeros_initializer(),
+                weight_decay=decay)
+            conv_data = conv_data + biases
+        conv_data = apply_activation(conv_data, relu, activation_fn)
+    return conv_data
+
+
 def max_pool(x, ksize=2, stride=2, padding='SAME', name='max_pool'):
     """Max pooling wrapper.
 
@@ -154,6 +181,7 @@ def bilinear_upsample(x, scale=2):
         return ret
 
     inp_shape = x.get_shape().as_list()
+    # inp_shape = tf.shape(x)
     ch = inp_shape[3]
     assert ch is not None
     filter_shape = 2 * scale
@@ -162,13 +190,14 @@ def bilinear_upsample(x, scale=2):
     weight_var = tf.constant(w, tf.float32,
                              shape=(filter_shape, filter_shape, ch, ch),
                              name='bilinear_upsample_filter')
-    pad = min(scale - 1, inp_shape[1])
+    # pad = min(scale - 1, inp_shape[1])
+    pad = scale - 1
     x = tf.pad(x, [[0, 0], [pad, pad], [pad, pad], [0, 0]], mode='SYMMETRIC')
-    if inp_shape[1] < scale:
-        # may cause problem?
-        pad = scale - 1 - inp_shape[1]
-        x = tf.pad(x, [[0, 0], [pad, pad], [pad, pad], [0, 0]],
-                   mode='CONSTANT')
+    # if inp_shape[1] < scale:
+        # # may cause problem?
+        # pad = scale - 1 - inp_shape[1]
+        # x = tf.pad(x, [[0, 0], [pad, pad], [pad, pad], [0, 0]],
+                   # mode='CONSTANT')
     out_shape = tf.shape(x) * tf.constant([1, scale, scale, 1], tf.int32)
     deconv = tf.nn.conv2d_transpose(x, weight_var, out_shape,
                                     [1, scale, scale, 1], 'SAME')

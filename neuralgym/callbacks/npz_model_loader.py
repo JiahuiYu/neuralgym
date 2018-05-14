@@ -65,11 +65,11 @@ class NPZModelLoader(OnceCallback):
                         self._weights[name].get_shape().as_list()):
                     logger.warning(
                         'Dimension of weights not equal. Ignored weights of '
-                        'name: %s.', self._weights[name].name)
+                        'name: {}.'.format(self._weights[name].name))
                 else:
                     sess.run(self._weights[name].assign(npy))
-                    print('Loaded weights of name: %s.',
-                                self._weights[name].name)
+                    print('Loaded weights of name: {}.'.format(
+                        self._weights[name].name))
             else:
-                print('Ignored weights of name: %s.',
-                            self._weights[name].name)
+                print('Ignored weights of name: {}.'.format(
+                    self._weights[name].name))
