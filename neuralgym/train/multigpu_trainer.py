@@ -67,8 +67,6 @@ class MultiGPUTrainer(Trainer):
         var_list = self.context.get('var_list')
         graph_def_kwargs = self.context['graph_def_kwargs']
         gradient_processor = self.context.get('gradient_processor')
-        assert loss is None('For multigpu training, graph_def and kwargs'
-                            'should be provided, instead of loss.')
         tower_grads = []
         tower_losses = []
         for gpu in range(self.context.get('num_gpus')):
