@@ -25,7 +25,7 @@ def np_scale_to_shape(image, shape, align=True):
         scale = np.maximum(height/imgh, width/imgw)
         image = cv2.resize(
             image,
-            (math.ceil(imgh*scale), math.ceil(imgw*scale)))
+            (math.ceil(imgw*scale), math.ceil(imgh*scale)))
     return image
 
 
