@@ -163,7 +163,7 @@ class DataFromFNames(Dataset):
             error = True
             while error:
                 error = False
-                if random:
+                if self.random:
                     filenames = random.choice(self.fnamelists_)
                 else:
                     with READER_LOCK:
