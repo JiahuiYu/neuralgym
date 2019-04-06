@@ -63,10 +63,10 @@ def get_gpus(num_gpus=1, dedicated=True, verbose=True):
     sorted_gpus = sorted(gpus.items(), key=lambda x: x[1])
     if len(sorted_gpus) < num_gpus:
         raise SystemError(
-            'No enough gpus. {} v.s. {}.'.format(len(sorted_gpus), num_gpus))
+            'Not enough gpus. {} v.s. {}.'.format(len(sorted_gpus), num_gpus))
     if dedicated and sorted_gpus[num_gpus-1][1] != 0:
         raise SystemError(
-            'No enough gpus for dedicated usage.'
+            'Not enough gpus for dedicated usage.'
             ' [(gpu id: num of processes)]: {}'.format(sorted_gpus))
     selected_gpu_ids = [g[0] for g in sorted_gpus][:num_gpus]
     set_gpus(selected_gpu_ids)
