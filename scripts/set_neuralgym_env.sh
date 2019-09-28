@@ -1,6 +1,6 @@
 neuralgym_ps_id=`echo $$`
 neuralgym_current_shell=`ps | grep $neuralgym_ps_id | awk '{ print $4 }'`
-echo $neuralgym_current_shell
+# echo $neuralgym_current_shell
 
 if [ $neuralgym_current_shell = zsh ]; then
   neuralgym_dir=`dirname $0`
@@ -11,6 +11,6 @@ else
 fi
 
 neuralgym_linkdir="`readlink -f $neuralgym_dir/../`"
-echo $neuralgym_linkdir
+# echo $neuralgym_linkdir
 
 export PYTHONPATH=`readlink -f $neuralgym_linkdir`:$PYTHONPATH

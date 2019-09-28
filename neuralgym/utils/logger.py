@@ -4,9 +4,6 @@ import sys
 import time
 
 
-logger = logging.getLogger()
-
-
 color2num = dict(
     gray=30,
     red=31,
@@ -40,7 +37,7 @@ def colored_log(prompt, texts, color='green', bold=True, highlight=False):
     colored_prompt = colorize(prompt, color, bold=bold, highlight=highlight)
     clean_line = ''
     sys.stdout.write(clean_line)
-    logger.info(colored_prompt + texts)
+    print(colored_prompt + texts)
 
 
 def callback_log(texts):
@@ -143,10 +140,10 @@ class ProgressBar(object):
         ])
 
         if progress == 1:
-            logger.info(info)
+            print(texts)
             self.restart()
         else:
-            sys.stdout.write(info)
+            # sys.stdout.write(info)
             # update time and progress
             self._p_last = self._p_current
             self._t_last = self._t_current

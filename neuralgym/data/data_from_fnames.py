@@ -11,7 +11,6 @@ from .dataset import Dataset
 from ..ops.image_ops import np_random_crop
 
 
-logger = logging.getLogger()
 READER_LOCK = threading.Lock()
 
 
@@ -142,15 +141,15 @@ class DataFromFNames(Dataset):
             self._queue, [enq]*self.nthreads,
             feed_dict_op=[lambda: self.next_batch()],
             feed_dict_key=self.batch_phs))
-        summary_name = 'fraction_of_%d_full' % capacity
-        logging_ops.scalar_summary("queue/%s/%s" % (
-            self._queue.name, summary_name), math_ops.cast(
-                self._queue.size(), dtypes.float32) * (1. / capacity))
+        # summary_name = 'fraction_of_%d_full' % capacity
+        # logging_ops.scalar_summary("queue/%s/%s" % (
+            # self._queue.name, summary_name), math_ops.cast(
+                # self._queue.size(), dtypes.float32) * (1. / capacity))
 
     def read_img(self, filename):
         img = cv2.imread(filename)
         if img is None:
-            logger.info('image is None, sleep this thread for 0.1s.')
+            print('image is None, sleep this thread for 0.1s.')
             time.sleep(0.1)
             return img, True
         if self.fn_preprocess:

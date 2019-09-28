@@ -8,9 +8,6 @@ from . import PeriodicCallback, CallbackLoc
 from ..utils.logger import callback_log
 
 
-logger = logging.getLogger()
-
-
 class ModelSync(PeriodicCallback):
     """ModelSync.
 
@@ -57,7 +54,7 @@ class ModelSync(PeriodicCallback):
                         self.to_namescope+'/', self.from_namescope+'/')
                 name = name.replace(':0', '')
                 from_var = tf.get_variable(name)
-                logger.info('Add op for syncing from var: {} to var: {}'
+                print('Add op for syncing from var: {} to var: {}'
                             .format(from_var.name, var.name))
                 self._ops.append(var.assign(from_var))
 

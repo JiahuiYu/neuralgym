@@ -12,9 +12,6 @@ from . import CallbackLoc, OnceCallback
 from ..utils.logger import callback_log
 
 
-logger = logging.getLogger()
-
-
 class NPZModelLoader(OnceCallback):
     """NPZModelLoader loads a model with weights in npz file.
 
@@ -68,11 +65,11 @@ class NPZModelLoader(OnceCallback):
                         self._weights[name].get_shape().as_list()):
                     logger.warning(
                         'Dimension of weights not equal. Ignored weights of '
-                        'name: %s.', self._weights[name].name)
+                        'name: {}.'.format(self._weights[name].name))
                 else:
                     sess.run(self._weights[name].assign(npy))
-                    logger.info('Loaded weights of name: %s.',
-                                self._weights[name].name)
+                    print('Loaded weights of name: {}.'.format(
+                        self._weights[name].name))
             else:
-                logger.info('Ignored weights of name: %s.',
-                            self._weights[name].name)
+                print('Ignored weights of name: {}.'.format(
+                    self._weights[name].name))

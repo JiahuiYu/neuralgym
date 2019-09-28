@@ -2,16 +2,13 @@ import logging
 import os
 
 
-logger = logging.getLogger()
-
-
 def shuffle_file(filename):
     """Shuffle lines in file.
 
     """
     sp = filename.split('/')
     shuffled_filename = '/'.join(sp[:-1] + ['shuffled_{}'.format(sp[-1])])
-    logger.info(shuffled_filename)
+    print(shuffled_filename)
     os.system('shuf {} > {}'.format(filename, shuffled_filename))
     return shuffled_filename
 
@@ -48,5 +45,5 @@ def compute_mean(sess, images, steps):
         mean_list.append(mean)
         bar.progress(i/steps, 'Computing image means...')
     mean = np.mean(mean_list, 0)
-    logger.info('Image Mean: %s', mean)
+    print('Image Mean: %s', mean)
     return mean
