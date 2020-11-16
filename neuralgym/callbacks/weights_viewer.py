@@ -30,7 +30,7 @@ class WeightsViewer(OnceCallback):
     def run(self, sess):
         callback_log('Trigger WeightsViewer: logging model weights...')
         total_size = 0
-        for var in tf.trainable_variables():
+        for var in tf.compat.v1.trainable_variables():
             # counts
             if self.counts or self.size:
                 w_size = np.prod(var.get_shape().as_list())
@@ -41,7 +41,7 @@ class WeightsViewer(OnceCallback):
                 total_size += w_size
             # histogram summary
             if self.hist_summary:
-                tf.summary.histogram(var.name, var)
+                tf.compat.v1.summary.histogram(var.name, var)
         if self.counts:
             callback_log('Total counts of trainable weights: %d.' % total_size)
         if self.size:

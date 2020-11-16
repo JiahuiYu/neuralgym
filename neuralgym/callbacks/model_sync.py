@@ -33,16 +33,16 @@ class ModelSync(PeriodicCallback):
             super().__init__(CallbackLoc.step_end, pstep)
         self.from_namescope = from_namescope
         self.to_namescope = to_namescope
-        vars_from = tf.get_collection(
-            tf.GraphKeys.TRAINABLE_VARIABLES, from_namescope)
-        vars_to = tf.get_collection(
-            tf.GraphKeys.TRAINABLE_VARIABLES, to_namescope)
+        vars_from = tf.compat.v1.get_collection(
+            tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES, from_namescope)
+        vars_to = tf.compat.v1.get_collection(
+            tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES, to_namescope)
         # ops to sync
         self._ops = []
         callback_log(
             'Add callback: sync model from namescope: {} to namescope: {}'
             .format(from_namescope, to_namescope))
-        with tf.variable_scope(tf.get_variable_scope(), reuse=True):
+        with tf.compat.v1.variable_scope(tf.compat.v1.get_variable_scope(), reuse=True):
             for var in vars_to:
                 name = var.name
                 if self.from_namescope == '':
@@ -53,7 +53,7 @@ class ModelSync(PeriodicCallback):
                     name = name.replace(
                         self.to_namescope+'/', self.from_namescope+'/')
                 name = name.replace(':0', '')
-                from_var = tf.get_variable(name)
+                from_var = tf.compat.v1.get_variable(name)
                 print('Add op for syncing from var: {} to var: {}'
                             .format(from_var.name, var.name))
                 self._ops.append(var.assign(from_var))

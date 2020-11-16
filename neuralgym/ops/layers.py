@@ -12,11 +12,11 @@ def get_variable(name, shape, initializer, weight_decay=0.0, dtype='float',
 
     """
     if weight_decay > 0.:
-        regularizer = tf.contrib.layers.l2_regularizer(weight_decay)
+        regularizer = tf.keras.regularizers.l2(0.5 * (weight_decay))
     else:
         regularizer = None
-    collections = [tf.GraphKeys.GLOBAL_VARIABLES]
-    variable = tf.get_variable(
+    collections = [tf.compat.v1.GraphKeys.GLOBAL_VARIABLES]
+    variable = tf.compat.v1.get_variable(
         name, shape=shape, dtype=dtype, initializer=initializer,
         regularizer=regularizer, trainable=trainable, collections=collections)
     if freeze_weights:
@@ -34,7 +34,7 @@ def NHWC_to_NCHW(x, name='NHWC_to_NCHW'):
     """Convert data format from NHWC to NCHW.
 
     """
-    x = tf.transpose(x, [0, 3, 1, 2])
+    x = tf.transpose(a=x, perm=[0, 3, 1, 2])
     return x
 
 
@@ -42,7 +42,7 @@ def NCHW_to_NHWC(x, name='NCHW_to_NHWC'):
     """Convert data format from NCHW to NHWC.
 
     """
-    x = tf.transpose(x, [0, 2, 3, 1])
+    x = tf.transpose(a=x, perm=[0, 2, 3, 1])
     return x
 
 
@@ -50,7 +50,7 @@ def NHWC_to_HWNC(x, name='NHWC_to_HWNC'):
     """Convert data format from NHWC to HWNC, may be used for re-indexing.
 
     """
-    x = tf.transpose(x, [1, 2, 0, 3])
+    x = tf.transpose(a=x, perm=[1, 2, 0, 3])
     return x
 
 
@@ -58,7 +58,7 @@ def HWNC_to_NHWC(x, name='HWNC_to_NHWC'):
     """Convert data format from HWNC to NHWC, may be used for re-indexing.
 
     """
-    x = tf.transpose(x, [2, 0, 1, 3])
+    x = tf.transpose(a=x, perm=[2, 0, 1, 3])
     return x
 
 
@@ -67,7 +67,7 @@ def apply_activation(x, relu, activation_fn, name='activation'):
 
     **Note** activation_fn has higher execution level.
     """
-    with tf.variable_scope(name):
+    with tf.compat.v1.variable_scope(name):
         if activation_fn is not None:
             return activation_fn(x)
         elif relu:
@@ -83,14 +83,14 @@ def moving_average_var(x, decay=0.99, initial_value=0.,
     """
     moving_x = get_variable(
         name, x.get_shape(),
-        initializer=tf.constant_initializer(initial_value), trainable=False)
+        initializer=tf.compat.v1.constant_initializer(initial_value), trainable=False)
     with tf.control_dependencies([assign_moving_average(moving_x, x, decay)]):
         moving_x = tf.identity(moving_x)
     return moving_x
 
 
 def depthwise_conv2d(x, ksize=3, stride=1, decay=0.0, biased=True, relu=False,
-         activation_fn=None, w_init=tf.contrib.layers.xavier_initializer_conv2d(),
+         activation_fn=None, w_init=tf.compat.v1.keras.initializers.VarianceScaling(scale=1.0, mode="fan_avg", distribution="uniform"),
          padding='SAME', name='depthwise_conv2d'):
     """Simple wrapper for convolution layer.
     Padding can be 'SAME', 'VALID', 'REFLECT', 'SYMMETRIC'
@@ -98,18 +98,18 @@ def depthwise_conv2d(x, ksize=3, stride=1, decay=0.0, biased=True, relu=False,
     ksize = int2list(ksize)
     stride = int2list(stride)
     filters_in = x.get_shape()[-1]
-    with tf.variable_scope(name):
+    with tf.compat.v1.variable_scope(name):
         if padding == 'SYMMETRIC' or padding == 'REFELECT':
-            x = tf.pad(x, [[0,0], [int((ksize[0]-1)/2), int((ksize[0]-1)/2)], [int((ksize[1]-1)/2), int((ksize[1]-1)/2)], [0,0]], mode=padding)
+            x = tf.pad(tensor=x, paddings=[[0,0], [int((ksize[0]-1)/2), int((ksize[0]-1)/2)], [int((ksize[1]-1)/2), int((ksize[1]-1)/2)], [0,0]], mode=padding)
             padding = 'VALID'
         weights = get_variable(
             'weights', [ksize[0], ksize[1], filters_in, 1],
             initializer=w_init, weight_decay=decay)
         conv_data = tf.nn.depthwise_conv2d(
-            x, weights, strides=[1, stride[0], stride[1], 1], padding=padding)
+            input=x, filter=weights, strides=[1, stride[0], stride[1], 1], padding=padding)
         if biased:
             biases = get_variable(
-                'biases', [filters_in], initializer=tf.zeros_initializer(),
+                'biases', [filters_in], initializer=tf.compat.v1.zeros_initializer(),
                 weight_decay=decay)
             conv_data = conv_data + biases
         conv_data = apply_activation(conv_data, relu, activation_fn)
@@ -122,9 +122,9 @@ def max_pool(x, ksize=2, stride=2, padding='SAME', name='max_pool'):
     """
     k = int2list(ksize)
     s = int2list(stride)
-    with tf.variable_scope(name):
-        return tf.nn.max_pool(
-            x, [1, k[0], k[1], 1], [1, s[0], s[1], 1], padding)
+    with tf.compat.v1.variable_scope(name):
+        return tf.nn.max_pool2d(
+            input=x, ksize=[1, k[0], k[1], 1], strides=[1, s[0], s[1], 1], padding=padding)
 
 
 def avg_pool(x, ksize=2, stride=2, padding='SAME', name='avg_pool'):
@@ -133,21 +133,21 @@ def avg_pool(x, ksize=2, stride=2, padding='SAME', name='avg_pool'):
     """
     k = int2list(ksize)
     s = int2list(stride)
-    with tf.variable_scope(name):
-        return tf.nn.avg_pool(
-            x, [1, k[0], k[1], 1], [1, s[0], s[1], 1], padding)
+    with tf.compat.v1.variable_scope(name):
+        return tf.nn.avg_pool2d(
+            input=x, ksize=[1, k[0], k[1], 1], strides=[1, s[0], s[1], 1], padding=padding)
 
 
 def resize(x, scale=2, to_shape=None, align_corners=True, dynamic=False,
-           func=tf.image.resize_bilinear, name='resize'):
+           func=tf.compat.v1.image.resize_bilinear, name='resize'):
     if dynamic:
-        xs = tf.cast(tf.shape(x), tf.float32)
+        xs = tf.cast(tf.shape(input=x), tf.float32)
         new_xs = [tf.cast(xs[1]*scale, tf.int32),
                   tf.cast(xs[2]*scale, tf.int32)]
     else:
         xs = x.get_shape().as_list()
         new_xs = [int(xs[1]*scale), int(xs[2]*scale)]
-    with tf.variable_scope(name):
+    with tf.compat.v1.variable_scope(name):
         if to_shape is None:
             x = func(x, new_xs, align_corners=align_corners)
         else:
@@ -192,13 +192,13 @@ def bilinear_upsample(x, scale=2):
                              name='bilinear_upsample_filter')
     # pad = min(scale - 1, inp_shape[1])
     pad = scale - 1
-    x = tf.pad(x, [[0, 0], [pad, pad], [pad, pad], [0, 0]], mode='SYMMETRIC')
+    x = tf.pad(tensor=x, paddings=[[0, 0], [pad, pad], [pad, pad], [0, 0]], mode='SYMMETRIC')
     # if inp_shape[1] < scale:
         # # may cause problem?
         # pad = scale - 1 - inp_shape[1]
         # x = tf.pad(x, [[0, 0], [pad, pad], [pad, pad], [0, 0]],
                    # mode='CONSTANT')
-    out_shape = tf.shape(x) * tf.constant([1, scale, scale, 1], tf.int32)
+    out_shape = tf.shape(input=x) * tf.constant([1, scale, scale, 1], tf.int32)
     deconv = tf.nn.conv2d_transpose(x, weight_var, out_shape,
                                     [1, scale, scale, 1], 'SAME')
     edge = scale * (scale - 1)
@@ -219,21 +219,21 @@ def transformer(U, theta, out_size=None, name='SpatialTransformer'):
     """
 
     def _repeat(x, n_repeats):
-        with tf.variable_scope('_repeat'):
+        with tf.compat.v1.variable_scope('_repeat'):
             rep = tf.transpose(
-                tf.expand_dims(
-                    tf.ones(shape=tf.stack([n_repeats, ])), 1), [1, 0])
+                a=tf.expand_dims(
+                    tf.ones(shape=tf.stack([n_repeats, ])), 1), perm=[1, 0])
             rep = tf.cast(rep, 'int32')
             x = tf.matmul(tf.reshape(x, (-1, 1)), rep)
             return tf.reshape(x, [-1])
 
     def _interpolate(im, x, y, out_size):
-        with tf.variable_scope('_interpolate'):
+        with tf.compat.v1.variable_scope('_interpolate'):
             # constants
-            num_batch = tf.shape(im)[0]
-            height = tf.shape(im)[1]
-            width = tf.shape(im)[2]
-            channels = tf.shape(im)[3]
+            num_batch = tf.shape(input=im)[0]
+            height = tf.shape(input=im)[1]
+            width = tf.shape(input=im)[2]
+            channels = tf.shape(input=im)[3]
 
             x = tf.cast(x, 'float32')
             y = tf.cast(y, 'float32')
@@ -242,8 +242,8 @@ def transformer(U, theta, out_size=None, name='SpatialTransformer'):
             out_height = out_size[0]
             out_width = out_size[1]
             zero = tf.zeros([], dtype='int32')
-            max_y = tf.cast(tf.shape(im)[1] - 1, 'int32')
-            max_x = tf.cast(tf.shape(im)[2] - 1, 'int32')
+            max_y = tf.cast(tf.shape(input=im)[1] - 1, 'int32')
+            max_x = tf.cast(tf.shape(input=im)[2] - 1, 'int32')
 
             # scale indices from [-1, 1] to [0, width/height]
             x = (x + 1.0)*(width_f) / 2.0
@@ -292,7 +292,7 @@ def transformer(U, theta, out_size=None, name='SpatialTransformer'):
             return output
 
     def _meshgrid(height, width):
-        with tf.variable_scope('_meshgrid'):
+        with tf.compat.v1.variable_scope('_meshgrid'):
             # This should be equivalent to:
             #  x_t, y_t = np.meshgrid(np.linspace(-1, 1, width),
             #                         np.linspace(-1, 1, height))
@@ -301,7 +301,7 @@ def transformer(U, theta, out_size=None, name='SpatialTransformer'):
             x_t = tf.matmul(
                 tf.ones(shape=tf.stack([height, 1])),
                 tf.transpose(
-                    tf.expand_dims(tf.linspace(-1.0, 1.0, width), 1), [1, 0]))
+                    a=tf.expand_dims(tf.linspace(-1.0, 1.0, width), 1), perm=[1, 0]))
             y_t = tf.matmul(tf.expand_dims(tf.linspace(-1.0, 1.0, height), 1),
                             tf.ones(shape=tf.stack([1, width])))
 
@@ -313,11 +313,11 @@ def transformer(U, theta, out_size=None, name='SpatialTransformer'):
             return grid
 
     def _transform(theta, input_dim, out_size):
-        with tf.variable_scope('_transform'):
-            num_batch = tf.shape(input_dim)[0]
-            height = tf.shape(input_dim)[1]
-            width = tf.shape(input_dim)[2]
-            num_channels = tf.shape(input_dim)[3]
+        with tf.compat.v1.variable_scope('_transform'):
+            num_batch = tf.shape(input=input_dim)[0]
+            height = tf.shape(input=input_dim)[1]
+            width = tf.shape(input=input_dim)[2]
+            num_channels = tf.shape(input=input_dim)[3]
             theta = tf.reshape(theta, (-1, 2, 3))
             theta = tf.cast(theta, 'float32')
 
@@ -348,9 +348,9 @@ def transformer(U, theta, out_size=None, name='SpatialTransformer'):
                 tf.stack([num_batch, out_height, out_width, num_channels]))
             return output
 
-    with tf.variable_scope(name):
+    with tf.compat.v1.variable_scope(name):
         if out_size is None:
-            out_size = tf.shape(U)[1:3]
+            out_size = tf.shape(input=U)[1:3]
         output = _transform(theta, U, out_size)
         return output
 
@@ -371,7 +371,7 @@ def batch_transformer(U, thetas, out_size, name='BatchSpatialTransformer'):
         [num_batch*num_transforms,out_height,out_width,num_channels]
 
     """
-    with tf.variable_scope(name):
+    with tf.compat.v1.variable_scope(name):
         num_batch, num_transforms = map(int, thetas.get_shape().as_list()[:2])
         indices = [[i]*num_transforms for i in xrange(num_batch)]
         input_repeated = tf.gather(U, tf.reshape(indices, [-1]))
@@ -395,8 +395,8 @@ def pixel_flow(x, offset, interpolation='bilinear', name='pixel_flow'):
     """
     def reindex(x, offset):
         offset = tf.cast(offset, tf.int32)
-        xs = tf.shape(x)
-        ofs = tf.shape(offset)
+        xs = tf.shape(input=x)
+        ofs = tf.shape(input=offset)
         n_add = tf.tile(tf.reshape(
             tf.range(xs[0]), [xs[0], 1, 1, 1]), [1, xs[1], xs[2], 1])
         h_add = tf.tile(tf.reshape(
@@ -412,8 +412,8 @@ def pixel_flow(x, offset, interpolation='bilinear', name='pixel_flow'):
 
     def reindex_slow(x, offset):
         offset = tf.cast(offset, tf.int32)
-        xs = tf.shape(x)
-        ofs = tf.shape(offset)
+        xs = tf.shape(input=x)
+        ofs = tf.shape(input=offset)
         n_add = tf.tile(tf.reshape(
             tf.range(xs[0]), [xs[0], 1, 1, 1]), [1, xs[1], xs[2], 1])
         h_add = tf.tile(tf.reshape(
@@ -431,7 +431,7 @@ def pixel_flow(x, offset, interpolation='bilinear', name='pixel_flow'):
         sampled = tf.reshape(sampled, xs)
         return sampled
 
-    with tf.variable_scope(name):
+    with tf.compat.v1.variable_scope(name):
         assert x.get_shape().ndims == 4 and offset.get_shape().ndims == 4
 
         l = tf.floor(offset)  # lower
@@ -473,7 +473,7 @@ def concatenated_relu(x, name='concatenated_relu'):
     """Concatenated relu wrapper.
 
     """
-    with tf.variable_scope(name):
+    with tf.compat.v1.variable_scope(name):
         pos = tf.nn.relu(x)
         neg = tf.nn.relu(-x)
         return tf.concat([pos, neg], -1)
@@ -483,15 +483,15 @@ def scaled_elu(x, name='scaled_elu'):
     """Scaled elu wrapper.
 
     """
-    with tf.variable_scope(name):
+    with tf.compat.v1.variable_scope(name):
         alpha = 1.6732632423543772848170429916717
         scale = 1.0507009873554804934193349852946
-    return scale * tf.where(x >= 0.0, x, alpha * tf.nn.elu(x))
+    return scale * tf.compat.v1.where(x >= 0.0, x, alpha * tf.nn.elu(x))
 
 
 def flatten(x, name='flatten'):
     """Flatten wrapper.
 
     """
-    with tf.variable_scope(name):
+    with tf.compat.v1.variable_scope(name):
         return tf.contrib.layers.flatten(x)

@@ -81,12 +81,12 @@ class DataFromFNames(Dataset):
             self.dtypes = [dtypes] * len(self.fnamelists_[0])
         self.return_fnames = return_fnames
         self.batch_phs = [
-            tf.placeholder(dtype, [None] + shape)
+            tf.compat.v1.placeholder(dtype, [None] + shape)
             for dtype, shape in zip(self.dtypes, self.shapes)]
         if self.return_fnames:
             self.shapes += [[]]
             self.dtypes += [tf.string]
-            self.batch_phs.append(tf.placeholder(tf.string, [None]))
+            self.batch_phs.append(tf.compat.v1.placeholder(tf.string, [None]))
         self.enqueue_size = enqueue_size
         self.queue_size = queue_size
         self.nthreads = nthreads

@@ -15,6 +15,6 @@ def get_sess(sess=None):
 
     """
     if sess is None:
-        sess = tf.get_default_session()
+        sess = tf.compat.v1.get_default_session()
     assert sess, 'sess should not be None.'
     return sess

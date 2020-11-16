@@ -70,7 +70,7 @@ class MultiGPUTrainer(Trainer):
             with tf.device('/gpu:%d' % gpu):
                 # with tf.name_scope('tower_gpu%d' % gpu) as scope:
                 # Reuse variables for the next tower.
-                with tf.variable_scope(tf.get_variable_scope(), reuse=True):
+                with tf.compat.v1.variable_scope(tf.compat.v1.get_variable_scope(), reuse=True):
                     loss = self.context['graph_def'](
                         gpu_id=gpu, **graph_def_kwargs)
                     tower_losses.append(loss)
@@ -79,7 +79,7 @@ class MultiGPUTrainer(Trainer):
                     if self.context['grads_summary']:
                         for grad, var in grads:
                             if grad is not None:
-                                tf.summary.histogram(
+                                tf.compat.v1.summary.histogram(
                                     'gradients/' + var.name, grad)
                     grads = process_gradients(grads, gradient_processor)
                     tower_grads.append(grads)
@@ -94,5 +94,5 @@ class MultiGPUTrainer(Trainer):
             # average gradients.
             grads = average_gradients(tower_grads)
             apply_gradient_op = optimizer.apply_gradients(grads)
-            loss = tf.reduce_mean(tower_losses)
+            loss = tf.reduce_mean(input_tensor=tower_losses)
         return apply_gradient_op, loss

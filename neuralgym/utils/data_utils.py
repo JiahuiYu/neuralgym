@@ -41,7 +41,7 @@ def compute_mean(sess, images, steps):
     bar = ProgressBar()
     mean_list = []
     for i in range(steps):
-        mean = sess.run(tf.reduce_mean(images, [0, 1, 2]))
+        mean = sess.run(tf.reduce_mean(input_tensor=images, axis=[0, 1, 2]))
         mean_list.append(mean)
         bar.progress(i/steps, 'Computing image means...')
     mean = np.mean(mean_list, 0)
