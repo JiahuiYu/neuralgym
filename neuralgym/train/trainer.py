@@ -74,31 +74,31 @@ class Trainer(object):
 
         """
         self.context['global_step'] = self.context.pop(
-            'global_step', tf.get_variable(
+            'global_step', tf.compat.v1.get_variable(
                 'global_step', [], dtype=tf.int32,
-                initializer=tf.zeros_initializer(), trainable=False))
-        self.context['global_step_add_one'] = tf.assign_add(
+                initializer=tf.compat.v1.zeros_initializer(), trainable=False))
+        self.context['global_step_add_one'] = tf.compat.v1.assign_add(
             self.context['global_step'], 1, name='add_one_to_global_step')
         self.context['sess_config'] = self.context.pop(
-            'sess_config', tf.ConfigProto())
+            'sess_config', tf.compat.v1.ConfigProto())
         self.context['sess_config'].gpu_options.allow_growth = (
             self.context.pop('allow_growth', True))
         self.context['sess_config'].allow_soft_placement = self.context.pop(
             'allow_soft_placement', True)
-        self.context['sess'] = tf.Session(config=self.context['sess_config'])
-        self.context['summary_writer'] = tf.summary.FileWriter(
+        self.context['sess'] = tf.compat.v1.Session(config=self.context['sess_config'])
+        self.context['summary_writer'] = tf.compat.v1.summary.FileWriter(
             self.context['log_dir'], self.context['sess'].graph)
-        self.context['saver'] = tf.train.Saver(tf.global_variables())
+        self.context['saver'] = tf.compat.v1.train.Saver(tf.compat.v1.global_variables())
         # queue runner
         self.context['start_queue_runners'] = self.context.pop(
             'start_queue_runner', True)
         if self.context['start_queue_runners']:
-            tf.train.start_queue_runners(sess=self.context['sess'])
+            tf.compat.v1.train.start_queue_runners(sess=self.context['sess'])
         # initialization
         self.context['global_variables_initializer'] = self.context.pop(
             'global_variables_initializer', True)
         if self.context['global_variables_initializer']:
-            self.context['sess'].run(tf.global_variables_initializer())
+            self.context['sess'].run(tf.compat.v1.global_variables_initializer())
 
     def train(self):
         """Start training with callbacks.
@@ -250,7 +250,7 @@ class Trainer(object):
         if self.context['grads_summary']:
             for grad, var in grads:
                 if grad is not None:
-                    tf.summary.histogram('gradients/' + var.name, grad)
+                    tf.compat.v1.summary.histogram('gradients/' + var.name, grad)
         grads = process_gradients(grads, gradient_processor)
         # get operations
         apply_gradient_op = optimizer.apply_gradients(grads)

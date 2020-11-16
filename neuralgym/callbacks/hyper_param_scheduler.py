@@ -29,9 +29,9 @@ class HyperParamScheduler(ScheduledCallback):
                  cb_loc=CallbackLoc.step_end):
         super().__init__(cb_loc, schedule)
         if scope is None:
-            scope = tf.get_variable_scope()
-        with tf.variable_scope(scope, reuse=True):
-            self._param = tf.get_variable(param_name)
+            scope = tf.compat.v1.get_variable_scope()
+        with tf.compat.v1.variable_scope(scope, reuse=True):
+            self._param = tf.compat.v1.get_variable(param_name)
         scalar_summary('hyper_param_scheduler/'+param_name, self._param)
 
     def run(self, sess, step):

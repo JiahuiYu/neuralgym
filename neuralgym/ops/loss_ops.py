@@ -18,7 +18,7 @@ def l1_loss(x, y, name='l1_loss'):
     """L1 loss: mean(abs(x-y)).
 
     """
-    loss = tf.reduce_mean(tf.abs(x-y), name=name)
+    loss = tf.reduce_mean(input_tensor=tf.abs(x-y), name=name)
     return loss
 
 
@@ -26,7 +26,7 @@ def l2_loss(x, y, name='l2_loss'):
     """L2_loss: mean((x-y) ** 2).
 
     """
-    loss = tf.reduce_mean(tf.square(x-y), name=name)
+    loss = tf.reduce_mean(input_tensor=tf.square(x-y), name=name)
     return loss
 
 

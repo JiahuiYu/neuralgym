@@ -38,16 +38,16 @@ class ModelRestorer(OnceCallback):
 
     def run(self, sess):
         def optimistic_restore(sess, ckpt_file):
-            reader = tf.train.NewCheckpointReader(ckpt_file)
+            reader = tf.compat.v1.train.NewCheckpointReader(ckpt_file)
             saved_shapes = reader.get_variable_to_shape_map()
             var_names = sorted([(var.name, var.name.split(':')[0])
-                                for var in tf.global_variables()
+                                for var in tf.compat.v1.global_variables()
                                 if var.name.split(':')[0] in saved_shapes])
             restore_vars = []
             name2var = dict(zip(map(lambda x: x.name.split(':')[0],
-                                    tf.global_variables()),
-                                tf.global_variables()))
-            with tf.variable_scope('', reuse=True):
+                                    tf.compat.v1.global_variables()),
+                                tf.compat.v1.global_variables()))
+            with tf.compat.v1.variable_scope('', reuse=True):
                 for var_name, saved_var_name in var_names:
                     curr_var = name2var[saved_var_name]
                     var_shape = curr_var.get_shape().as_list()
@@ -55,7 +55,7 @@ class ModelRestorer(OnceCallback):
                         restore_vars.append(curr_var)
                         print('- restoring variable: {}'
                                     .format(curr_var.name))
-            saver = tf.train.Saver(restore_vars)
+            saver = tf.compat.v1.train.Saver(restore_vars)
             saver.restore(sess, ckpt_file)
 
         if not self._no_ckpt_file:
